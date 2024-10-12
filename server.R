@@ -1,0 +1,394 @@
+
+
+server <- function(input, output, session) {
+  
+  SONGS_DT_REACTIVE <- reactive({
+
+    SONGS_DT_REACTIVE <- SONGS %>% 
+      select(1, Runtime, 2:5, 48, 10, 8, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`) %>% 
+      filter(if(input$ROUND_SELECT != "All Rounds") Round == input$ROUND_SELECT else TRUE) %>% 
+      filter(if(input$PICKER_SELECT != "All Pickers") Picker == input$PICKER_SELECT else TRUE) %>% 
+      mutate(Title = paste0("<a href='", track.external_urls.spotify, "' target='_blank'>", Title,"</a>")) %>% 
+      mutate(Round = paste0("<a href='", `Playlist URL`, "' target='_blank'>", Round,"</a>")) %>% 
+      select(-c(track.external_urls.spotify, `Playlist URL`))
+      
+    
+  })
+  
+output$SONGS_DT <- renderDT({
+    
+    datatable(
+      SONGS_DT_REACTIVE(),
+      fillContainer = TRUE,
+      escape = FALSE,
+      #rownames = FALSE,
+      selection = "single",
+      options = list(
+        paging = FALSE,
+        scrollY = TRUE,
+        scrollX = TRUE,
+        autoWidth = TRUE,
+        columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "TRACK_ID", "Comment", "track.duration_ms", "track.explicit")))
+      )
+    ) 
+  })
+  
+  SONGS_DT_REACTIVE_SEL <- reactive({
+    
+    if(length(input$SONGS_DT_rows_selected) > 0){
+      
+      SONGS_DT_REACTIVE_SEL_PRE <- input$SONGS_DT_rows_selected 
+      
+      SONGS_DT_REACTIVE_SEL <- SONGS_DT_REACTIVE()[SONGS_DT_REACTIVE_SEL_PRE, ]
+
+    }      
+    else {
+      
+      SONGS_DT_REACTIVE_SEL <- SONGS_DT_REACTIVE() 
+
+      SONGS_DT_REACTIVE_SEL
+      
+    }
+    
+  })
+  
+  
+  VOTES_SONGS_REACTIVE <- reactive({
+      
+      VOTES_SONGS_REACTIVE <- SONGS_DT_REACTIVE_SEL() %>% 
+        right_join(VOTES %>% select(`Points Assigned`, Comment, `Voter ID`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID))
+
+      
+    })
+
+  ### VALUE BOX OUTPUTS ###
+    
+  output$RUNTIME <- renderText({
+    str_remove(str_remove(hms(sum(round(SONGS_DT_REACTIVE_SEL()$track.duration_ms/1000))), "^0+"), "^:+")
+  })
+  
+  output$AVG_RUNTIME <- renderText({
+    str_remove(str_remove(str_remove(hms(round(mean(SONGS_DT_REACTIVE_SEL()$track.duration_ms/1000))), "^0+"), "^:+"), "^0+")
+  })
+  
+  output$PCT_EXPLICIT <- renderText({
+    paste0(round(sum(SONGS_DT_REACTIVE_SEL()$track.explicit/nrow(SONGS_DT_REACTIVE_SEL())*100), digits = 1), "%")
+  })
+  
+  output$STANDINGS_PLOT <- renderPlot({
+    
+    STANDINGS_PLOT_DF <- VOTES_SONGS_REACTIVE() %>% 
+      filter(!is.na(Picker)) %>% 
+      group_by(Picker) %>% 
+      mutate(`Points Assigned` = as.integer(sum(`Points Assigned`))) %>% 
+      ungroup() %>% 
+      select(Picker_Alias, `Points Assigned`) %>% 
+      distinct()
+    
+    STANDINGS_PLOT <- STANDINGS_PLOT_DF %>% 
+      ggplot(aes(x = reorder(Picker_Alias, `Points Assigned`), y = `Points Assigned`))+ 
+      geom_segment(aes(xend = reorder(Picker_Alias, `Points Assigned`), y = 0, yend = `Points Assigned`))+
+      geom_point(size = 10, pch = 21, bg = "gray30", color = "#39FF14")+ 
+      geom_text(aes(label = `Points Assigned`), color = "white", size = 4, fontface = "bold", check_overlap = TRUE) +
+      theme(axis.text.y = element_text(size = 12),
+            axis.title = element_text(size = 12),
+            panel.grid.minor = element_blank(),
+            axis.ticks.x = element_blank(),
+            axis.text.x = element_blank())+
+      ylab("Points Received") +
+      xlab("Picker")+
+      scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
+      coord_flip() 
+
+    STANDINGS_PLOT
+    
+  })
+  
+  output$VOTE_SUM_PLOT <- renderPlot({
+    
+    VOTE_SUM_PLOT_DF <- VOTES_SONGS_REACTIVE() %>% 
+      filter(!is.na(Picker)) %>% 
+      group_by(Voter_Alias) %>% 
+      mutate(`Votes Cast` = sum(`Points Assigned`)) %>% 
+      ungroup() %>% 
+      select(Voter_Alias, `Votes Cast`) %>% 
+      distinct()
+    
+    VOTE_SUM_PLOT <-  VOTE_SUM_PLOT_DF%>% 
+      ggplot(aes(x = reorder(factor(Voter_Alias), `Votes Cast`), y = `Votes Cast`))+ 
+      annotate("segment", VOTE_SUM_PLOT_DF$Voter_Alias, xend = VOTE_SUM_PLOT_DF$Voter_Alias, y = 0, yend = VOTE_SUM_PLOT_DF$`Votes Cast`, linewidth = 0.5)+
+      geom_point(size = 10, pch = 21, bg = "gray30", color = "#FF13F0")+ 
+      geom_text(aes(label = `Votes Cast`), color = "white", size = 4, fontface = "bold", check_overlap = TRUE) +
+      theme(axis.text.y = element_text(size = 12),
+            axis.title = element_text(size = 12),
+            panel.grid.minor = element_blank(),
+            axis.ticks.x = element_blank(),
+            axis.text.x = element_blank())+
+      ylab("Points Allocated")+
+      xlab("Voter")+
+      scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
+      coord_flip()
+    
+    VOTE_SUM_PLOT
+    
+  })
+  
+  SONGS_DIST_REACTIVE <- reactive({
+    
+    SONGS_DIST_REACTIVE <- SONGS %>% 
+      select(1, Runtime, 2:5, 48, 10, 8, track.duration_ms, Round, Picker_Alias, track.explicit) %>% 
+      filter(if(input$ROUND_SELECT != "All Rounds") Round == input$ROUND_SELECT else TRUE) %>% 
+      filter(if(input$PICKER_SELECT != "All Pickers") Picker == input$PICKER_SELECT else TRUE) 
+    
+  })
+  
+  SONGS_DT_REACTIVE_DIST_SEL <- reactive({
+    
+    if(length(input$SONGS_DT_rows_selected) > 0){
+      
+      SONGS_DT_REACTIVE_DIST_PRE <- input$SONGS_DT_rows_selected 
+      
+      SONGS_DT_REACTIVE_DIST_SEL <- SONGS_DIST_REACTIVE()[SONGS_DT_REACTIVE_DIST_PRE, ]
+      
+    }      
+    else {
+      
+      SONGS_DIST_REACTIVE()
+      
+      # SONGS_DT_REACTIVE_DIST_SEL <- SONGS %>% 
+      #   filter(if(input$ROUND_SELECT != "All Rounds") Round == input$ROUND_SELECT 
+      #          else if(input$PICKER_SELECT != "All Pickers") Picker == input$PICKER_SELECT 
+      #          else TRUE) #%>%
+        #filter(if(input$PICKER_SELECT != "All Pickers") Picker %in% input$PICKER_SELECT else TRUE)
+      
+    }
+    
+  })
+  
+  SONGS_DIST_REACTIVE_VOTES <- reactive({
+    
+    SONGS_DIST_REACTIVE_VOTES <- VOTES %>% 
+      right_join(SONGS_DT_REACTIVE_DIST_SEL(), by = join_by(TRACK_ID)) 
+      
+    
+    SONGS_DIST_REACTIVE_VOTES
+  })
+  
+  DIST_TITLE <- reactive({
+    if (length(input$SONGS_DT_rows_selected) > 0){
+      
+      SONGS_DT_SEL_TITLE_pre <- input$SONGS_DT_rows_selected
+      
+      DIST_TITLE <- ggtitle("Point Distribution", 
+                            subtitle = paste0("Song: ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 1]))
+      )
+    } else 
+      
+    DIST_TITLE <- ggtitle("Point Distribution", 
+                          subtitle = paste0("Round: ", input$ROUND_SELECT, "\nPicker: ", input$PICKER_SELECT)
+    )
+    
+  })
+  
+  output$VOTES_DIST_PLOT <- renderPlot({
+    
+    VOTES_DIST_PLOT <- SONGS_DIST_REACTIVE_VOTES() %>% 
+      ggplot(aes(x = `Points Assigned`))+
+      geom_bar(fill = "#8CB5B3", width = 0.7)+
+      geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = "white", fontface = "bold", fill = "#B77D67")+
+      theme(panel.grid.minor = element_blank())+
+      scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c(0.05, 0.2)))+
+      scale_x_continuous(breaks = ~round(unique(pretty(.))))+
+      DIST_TITLE()
+    
+    VOTES_DIST_PLOT
+
+  })
+  
+  ############################################################################################################
+  #############################################  PAGE 2 SERVER  ##############################################
+  ############################################################################################################
+  
+  SONGS_DT_REACTIVE_2 <- reactive({
+    
+    SONGS_DT_REACTIVE_2 <- SONGS %>% 
+      select(1, Runtime, 2:5, 13:23, 48, 10, 8, `track popularity`, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`, round_abbr) %>% 
+      mutate(Title = paste0("<a href='", track.external_urls.spotify, "' target='_blank'>", Title,"</a>")) %>% 
+      mutate(Round = paste0("<a href='", `Playlist URL`, "' target='_blank'>", Round,"</a>")) %>% 
+      select(-c(track.external_urls.spotify, `Playlist URL`))
+    
+    
+  })
+  
+  PARAM_DEF_UPDATE <- reactive({
+    
+    DEFINITIONS %>%
+      filter(Variable == input$PARAM_SELECT)%>%
+      pull("Definition")
+    
+  })
+  
+  PARAM_LINK_UPDATE <- reactive({
+    
+    DEFINITIONS %>%
+      filter(Variable == input$PARAM_SELECT)%>%
+      pull("Link")
+    
+  })
+
+  
+  observeEvent(input$PARAM_SELECT, {
+    
+    update_popover(
+      id = "PARAM_POP",
+      title = "Spotify definition",
+      PARAM_DEF_UPDATE(),
+      a("More info", href = PARAM_LINK_UPDATE(), target = "_blank")
+      
+    )
+    
+  })
+  
+  output$SONGS_DT2 <- renderDT({
+    
+    datatable({if (length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT == "Picker") {
+      brushedPoints(SONGS_DT_REACTIVE_2(),
+                    brush = input$PLOT_BRUSH, 
+                    xvar = "Picker",
+                    yvar = input$PARAM_SELECT
+      )
+      
+    } else if(length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT == "Round") {
+      brushedPoints(SONGS_DT_REACTIVE_2(), 
+                    brush = input$PLOT_BRUSH, 
+                    xvar = "round_abbr",
+                    yvar = input$PARAM_SELECT
+      )
+      
+    } else SONGS_DT_REACTIVE_2() },
+    fillContainer = TRUE,
+    escape = FALSE,
+    #rownames = FALSE,
+    selection = "single",
+    options = list(
+      paging = FALSE,
+      scrollY = TRUE,
+      scrollX = TRUE,
+      autoWidth = TRUE,
+      columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "TRACK_ID", "Comment", "track.duration_ms", "track.explicit")))
+    )
+    )
+    
+    
+  })
+  
+  output$PARAM_DIST_PLOT <- renderPlot({
+    
+    SONGS %>% 
+      ggplot(aes(x = .data[[input$PARAM_SELECT]]))+
+      geom_histogram(bins = input$HISTO_SLIDE)
+    
+  })
+  
+  X_LAB_BOX <- reactive({
+    
+   if(input$GROUP_SELECT == "Round") {
+    scale_x_discrete(label=function(x) paste0(str_trunc(x, width = 12), "..."))
+    } else
+      NULL
+  }) 
+
+  output$BOXPLOTS <- renderPlot({
+    
+    SONGS_LONG %>%
+      filter(variable == input$PARAM_SELECT) %>% 
+      mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>% 
+      ggplot(aes(x = reorder(.data[[input$GROUP_SELECT]], value, FUN = median), 
+                 y = value, 
+                 fill = .data[[input$GROUP_SELECT]]))+
+      geom_boxplot(outlier.shape = NA)+
+      geom_jitter(width = 0.08)+
+      theme(text = element_text(size = 12),
+            axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
+            axis.title.x = element_blank(),
+            legend.position = "none")+
+      scale_x_discrete()+
+      ylab(input$PARAM_SELECT)
+    
+  })
+  
+  output$DENSE_HISTO_PLOT <- renderPlot({
+    
+    SONGS_LONG %>% 
+      filter(variable == input$PARAM_SELECT) %>% 
+      mutate(Round = paste0(str_trunc(Round, width = 14), "...")) %>% 
+      ggplot(aes(
+        x = value, 
+        y = reorder(.data[[input$GROUP_SELECT]], value, FUN = median), 
+        fill = .data[[input$GROUP_SELECT]]
+        ))+
+      geom_density_ridges(quantile_lines = TRUE, quantiles = 2) +
+      theme(text = element_text(size = 12), 
+            legend.position = "none",
+            axis.title.y = element_blank()
+            )+
+      scale_x_continuous(expand = c(0, 0))+
+      scale_y_discrete(expand = expand_scale(mult = c(0.01, 0.15))) +
+      xlab(input$PARAM_SELECT)
+    
+  })
+  
+  ### VALUE BOX OUTPUTS ###
+  
+  SONGS_LONG_REACT <- reactive({
+    
+    SONGS_LONG_REACT <- SONGS_LONG %>% 
+      filter(variable == input$PARAM_SELECT) 
+      
+  })
+  
+  PARAM_MIN <- reactive({
+    
+    min(SONGS_LONG_REACT()$value)
+    
+  })
+  
+  
+  
+  output$MIN_TITLE <- renderText({
+
+    paste0("min ", input$PARAM_SELECT)
+    
+      })
+  
+  output$MIN_VALUE <- renderText({
+
+    MIN_VALUE <- as.character(round(min(SONGS_LONG_REACT()$value), 3))
+
+      })
+  
+  output$MAX_TITLE <- renderText({
+
+    paste0("max ", input$PARAM_SELECT)
+    
+      })
+  
+  output$MAX_VALUE <- renderText({
+
+    MAX_VALUE <- as.character(round(max(SONGS_LONG_REACT()$value), 3))
+    
+      })
+  
+  output$MEDIAN_TITLE <- renderText({
+
+    paste0("median ", input$PARAM_SELECT)
+    
+      })
+  
+  output$MEDIAN_VALUE <- renderText({
+
+    MEDIAN_VALUE <- as.character(round(median(SONGS_LONG_REACT()$value), 3))
+    
+      })
+  
+}

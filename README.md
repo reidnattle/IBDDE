@@ -4,7 +4,7 @@ If you've never used R and RStudio, this may be a bit much. If you just want the
 
 Once R and RStudio are installed follow these steps: 
 
-1. download the IBDDE zipped repository from github (if you haven't already)
+1. download the IBDDE zipped repository from github (click the green "Code" drop-down and select "download ZIP") if you haven't already.
 2. unzip
 3. open the folder and open IBDDE.Rproj - this will open the project in RStudio.
 4. RStudio will likely tell you that you don't have the necessary packages. Tell it to go ahead and install them.
@@ -15,6 +15,6 @@ Note: the IBDD_DATA_WRANG.R script in main directory will not work out of the bo
   To do this: https://developer.spotify.com/documentation/web-api/tutorials/getting-started
   Once you have an account and secret, you'll need to reference it in the IBDD_DATA_WRANG.R. 
 
-Another Note: this is a living project/directory, so it will be updated as the project is updated.  
+Another Note: this is a living project/directory, it will be updated as the project is updated.  
 
 

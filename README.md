@@ -1,6 +1,6 @@
 To run this project you'll need R (https://www.r-project.org/) and RStudio (now Posit: https://posit.co/downloads/) or some other IDE (e.g. jupyter) to run R.
 
-If you've never used R and RStudio, this may be a bit much. If you just want the data, look in the "DATA" and "export" folders in the github repository. The VOTES12.csv and SONGS12.csv files in the DATA folder include spotify data along with music league votes/rounds data. If you just want the raw music league data (without spotify additions), see the "export" folder tables. 
+If you've never used R and RStudio, this may be a bit much. If you just want the data, look in the "DATA" and "export" folders in the shared google drive folder. The DATA folder contains the output from the IBDD_DATA_WRANG.R script, which pulls in spotify data and joins it to music league data. These files contain the data files that the app uses. If you just want the raw music league data (without spotify additions), see the "export" folder tables. 
 
 Once R and RStudio are installed follow these steps: 
 

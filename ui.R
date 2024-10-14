@@ -16,8 +16,7 @@ ui <- page_navbar(
             page_fluid(
               
               tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
-              #tags$head(tags$style(HTML("hr {}"))),
-              
+
               layout_sidebar(
                 sidebar = sidebar(
                   width = 230,
@@ -61,7 +60,7 @@ ui <- page_navbar(
                     #   width = 0.2,
                     # ),
                     fill = FALSE,
-                    height = "75px",
+                    height = "90px",
                     theme = "bg-info"
                   ),
                   
@@ -71,7 +70,7 @@ ui <- page_navbar(
                     showcase = bsicons::bs_icon("clock",
                                                 size = "0.70em"),
                     fill = FALSE,
-                    height = "75px",
+                    height = "90px",
                     theme = "teal",
                     # showcase_layout = showcase_left_center(
                     #   width = 0.2,
@@ -85,7 +84,7 @@ ui <- page_navbar(
                                                 size = "0.70em"
                     ),
                     fill = FALSE,
-                    height = "75px",
+                    height = "90px",
                     theme = "green",
                     # showcase_layout = showcase_left_center(
                     #   width = 0.2,
@@ -115,7 +114,7 @@ ui <- page_navbar(
                       class = "p-0",
                       layout_column_wrap(
                       width = "200px",
-                      title = "Votes",
+                      #title = "Votes",
                       navset_card_tab(
                         title = "Votes Summary",
                         nav_panel("Standings", 
@@ -138,7 +137,7 @@ ui <- page_navbar(
             page_fluid(
               
               tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
-              
+
               layout_sidebar(
                 sidebar = sidebar(
                   width = 230,
@@ -192,7 +191,7 @@ ui <- page_navbar(
                             showcase = bsicons::bs_icon("arrow-down",
                                                         size = "0.70em"),
                             fill = FALSE,
-                            height = "75px",
+                            height = "90px",
                             theme = "purple",
                              # showcase_layout = showcase_left_center(
                              #   width = 0.2,
@@ -210,7 +209,7 @@ ui <- page_navbar(
                     #   width = 0.2,
                     # ),
                     fill = FALSE,
-                    height = "75px",
+                    height = "90px",
                     theme = "indigo"
                   ),
                   
@@ -222,7 +221,7 @@ ui <- page_navbar(
                                                 size = "0.70em"
                     ),
                     fill = FALSE,
-                    height = "75px",
+                    height = "90px",
                     theme = "teal",
                       showcase_layout = showcase_left_center(
                         width = 0.25,
@@ -242,7 +241,7 @@ ui <- page_navbar(
                       class = "p-0",
                       layout_column_wrap(
                       width = "200px",
-                      title = "Votes",
+                      #title = "Votes",
                       navset_card_tab(
                         #title = "Votes Summary",
                         nav_panel("Box Plots", 
@@ -276,7 +275,7 @@ ui <- page_navbar(
   
   nav_panel("Votes",
             
-            h3("chow daddy wuz here")
+            h3("tbd")
             
             ),
   

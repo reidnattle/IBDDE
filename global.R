@@ -8,15 +8,12 @@ library(bslib)
 library(thematic)
 library(DT)
 library(shinyWidgets)
-library(thematic)
-library(ragg)
 library(scales)
 library(hms)
 library(rsconnect)
 library(ggridges)
 
 #rsconnect::writeManifest()
-#Maybe do ssh key from github?
 
 SONGS <- read_rds("DATA/SONGS12.rds") %>% 
   rename("track popularity" = track.popularity) %>% 

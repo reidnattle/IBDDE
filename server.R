@@ -251,33 +251,56 @@ output$SONGS_DT <- renderDT({
   
   output$SONGS_DT2 <- renderDT({
     
+    SONGS2_DT2 <- SONGS_DT_REACTIVE_2() %>% 
+      select(1, 
+             input$PARAM_SELECT, 
+             Picker, 
+             Round, 
+             Points, 
+             `Artist(s)`, 
+             Album,
+             round_abbr
+             ) %>% 
+      arrange(desc(2))
+    
     datatable({if (length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT == "Picker") {
-      brushedPoints(SONGS_DT_REACTIVE_2(),
+      brushedPoints(SONGS2_DT2,
                     brush = input$PLOT_BRUSH, 
                     xvar = "Picker",
                     yvar = input$PARAM_SELECT
       )
       
     } else if(length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT == "Round") {
-      brushedPoints(SONGS_DT_REACTIVE_2(), 
+      brushedPoints(SONGS2_DT2, 
                     brush = input$PLOT_BRUSH, 
                     xvar = "round_abbr",
                     yvar = input$PARAM_SELECT
       )
       
-    } else SONGS_DT_REACTIVE_2() },
+    } else SONGS2_DT2 },
     fillContainer = TRUE,
-    escape = FALSE,
-    #rownames = FALSE,
-    selection = "single",
+    escape = -c(1, 4),
+    rownames = FALSE,
+    selection = "none",
     options = list(
+      order = list(list(1, 'desc')),
       paging = FALSE,
       scrollY = TRUE,
       scrollX = TRUE,
       autoWidth = TRUE,
-      columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "TRACK_ID", "Comment", "track.duration_ms", "track.explicit")))
+      columnDefs = list(list(visible = FALSE, targets = c("round_abbr"))
+                        )
     )
-    )
+    ) %>% 
+      formatStyle(2,
+                   background = if(input$DARK_MODE == "light") { styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), 'lightgreen')
+                     } else styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), 'purple'),
+                   backgroundSize = '98% 88%',
+                   backgroundRepeat = 'no-repeat',
+                   backgroundPosition = 'center') %>% 
+      formatStyle(2,
+                  fontWeight = 'bold') %>% 
+      formatStyle(c(2, 4, 6:7), "white-space"="nowrap")
     
     
   })

@@ -6,7 +6,7 @@ Once R and RStudio are installed follow these steps:
 
 1. download the IBDDE zipped repository from github (click the green "Code" drop-down and select "download ZIP") if you haven't already.
 2. unzip
-3. Drop the DATA folder, the "export" folder, and the WWW folder into the IBDDE folder.
+3. Google drive data folders: Download. Drop the DATA folder, the "export" folder, and the WWW folder into the IBDDE folder.
 4. open the folder and open IBDDE.Rproj - this will open the project in RStudio.
 5. RStudio will likely tell you that you don't have the necessary packages. Tell it to go ahead and install them.
 6. In the Global.R, ui.R, or  server.R script, click on "Run App" 

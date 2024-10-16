@@ -95,8 +95,8 @@ output$SONGS_DT <- renderDT({
             panel.grid.minor = element_blank(),
             axis.ticks.x = element_blank(),
             axis.text.x = element_blank())+
-      ylab("Points Received") +
-      xlab("Picker")+
+      ylab(paste0("Points received by ", input$PICKER_SELECT)) +
+      xlab("Picker (votes receiver)")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
       coord_flip() 
 
@@ -124,7 +124,7 @@ output$SONGS_DT <- renderDT({
             panel.grid.minor = element_blank(),
             axis.ticks.x = element_blank(),
             axis.text.x = element_blank())+
-      ylab("Points Allocated")+
+      ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
       xlab("Voter")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
       coord_flip()
@@ -154,13 +154,7 @@ output$SONGS_DT <- renderDT({
     else {
       
       SONGS_DIST_REACTIVE()
-      
-      # SONGS_DT_REACTIVE_DIST_SEL <- SONGS %>% 
-      #   filter(if(input$ROUND_SELECT != "All Rounds") Round == input$ROUND_SELECT 
-      #          else if(input$PICKER_SELECT != "All Pickers") Picker == input$PICKER_SELECT 
-      #          else TRUE) #%>%
-        #filter(if(input$PICKER_SELECT != "All Pickers") Picker %in% input$PICKER_SELECT else TRUE)
-      
+
     }
     
   })
@@ -184,8 +178,8 @@ output$SONGS_DT <- renderDT({
       )
     } else 
       
-    DIST_TITLE <- ggtitle("Point Distribution", 
-                          subtitle = paste0("Round: ", input$ROUND_SELECT, "\nPicker: ", input$PICKER_SELECT)
+    DIST_TITLE <- ggtitle("Points distributed to", 
+                          subtitle = paste0(input$PICKER_SELECT, " in ", str_trunc(input$ROUND_SELECT, 15))
     )
     
   })
@@ -294,7 +288,7 @@ output$SONGS_DT <- renderDT({
     ) %>% 
       formatStyle(2,
                    background = if(input$DARK_MODE == "light") { styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), 'lightgreen')
-                     } else styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), 'purple'),
+                     } else styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), '#6610f1'),
                    backgroundSize = '98% 88%',
                    backgroundRepeat = 'no-repeat',
                    backgroundPosition = 'center') %>% 

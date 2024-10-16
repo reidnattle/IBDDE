@@ -2,6 +2,8 @@
 source("global.R")
 thematic_on(font = "auto")
 
+
+
 # Define UI 
 ui <- page_navbar(
 
@@ -16,6 +18,16 @@ ui <- page_navbar(
             page_fluid(
               
               tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
+              link_git <- tags$a(shiny::icon("github"), 
+                                   href = "https://github.com/reidnattle/IBDDE", 
+                                   target = "_blank"),
+  #             tags$head(
+  #               tags$style(HTML("
+  # 
+  #       .dropdown a {
+  #           font-weight: bold !important;
+  #       },
+  # "))),
 
               layout_sidebar(
                 sidebar = sidebar(
@@ -33,15 +45,15 @@ ui <- page_navbar(
                               selected = "All Rounds",
                               options = pickerOptions(actionsBox = TRUE,
                                                       dropupAuto = FALSE,
-                                                      style = "btn-primary")
-                  ),
+                                                      style = "btn-outline-primary")
+                              ),
                   pickerInput("PICKER_SELECT",
                               "Pick a Picker",
                               choices = PICKER_SELECT_CHOICES,
                               selected = "All Pickers",
                               options = pickerOptions(actionsBox = TRUE,
                                                       dropupAuto = FALSE,
-                                                      style = "btn-primary")
+                                                      style = "btn-outline-primary")
                   ),
                   
                   card(card_body(plotOutput("VOTES_DIST_PLOT", height = 240),
@@ -162,10 +174,14 @@ ui <- page_navbar(
                                 "Tooltip message"
                                 ),
                               choices = VAR_SELECT_CHOICES,
+                              choicesOpt = list(
+                                style = rep_len("style = font-weight: bold;", 10)),
+                 
                               options = pickerOptions(dropupAuto = FALSE,
-                                                      style = "btn-primary")),
+                                                      style = "btn-outline-primary")
+                              ),
                   
-                  card(
+               card(
                     card_body(
                       plotOutput("PARAM_DIST_PLOT", height = 200),
                       class = "p-0"
@@ -281,5 +297,6 @@ ui <- page_navbar(
   
   nav_spacer(),
   nav_item(h4("Itty Bitty Ditties [data explorer]")),
+  nav_item(link_git),
   nav_item(input_dark_mode(id = "DARK_MODE", mode = "dark")), 
 )

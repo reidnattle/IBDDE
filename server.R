@@ -8,6 +8,7 @@ server <- function(input, output, session) {
       select(1, Runtime, 2:5, 48, 10, 8, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`) %>% 
       filter(if(input$ROUND_SELECT != "All Rounds") Round == input$ROUND_SELECT else TRUE) %>% 
       filter(if(input$PICKER_SELECT != "All Pickers") Picker == input$PICKER_SELECT else TRUE) %>% 
+      mutate(Title2 = Title) %>% 
       mutate(Title = paste0("<a href='", track.external_urls.spotify, "' target='_blank'>", Title,"</a>")) %>% 
       mutate(Round = paste0("<a href='", `Playlist URL`, "' target='_blank'>", Round,"</a>")) %>% 
       select(-c(track.external_urls.spotify, `Playlist URL`))
@@ -28,7 +29,7 @@ output$SONGS_DT <- renderDT({
         scrollY = TRUE,
         scrollX = TRUE,
         autoWidth = TRUE,
-        columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "TRACK_ID", "Comment", "track.duration_ms", "track.explicit")))
+        columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "TRACK_ID", "Comment", "track.duration_ms", "track.explicit", "Title2")))
       )
     ) 
   })
@@ -174,7 +175,7 @@ output$SONGS_DT <- renderDT({
       SONGS_DT_SEL_TITLE_pre <- input$SONGS_DT_rows_selected
       
       DIST_TITLE <- ggtitle("Point Distribution", 
-                            subtitle = paste0("Song: ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 1]))
+                            subtitle = paste0("Song: ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 13]))
       )
     } else 
       

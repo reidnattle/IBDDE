@@ -2,6 +2,9 @@
 source("global.R")
 thematic_on(font = "auto")
 
+link_git <- tags$a(shiny::icon("github"), 
+                   href = "https://github.com/reidnattle/IBDDE", 
+                   target = "_blank")
 
 
 # Define UI 
@@ -18,16 +21,6 @@ ui <- page_navbar(
             page_fluid(
               
               tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
-              link_git <- tags$a(shiny::icon("github"), 
-                                   href = "https://github.com/reidnattle/IBDDE", 
-                                   target = "_blank"),
-  #             tags$head(
-  #               tags$style(HTML("
-  # 
-  #       .dropdown a {
-  #           font-weight: bold !important;
-  #       },
-  # "))),
 
               layout_sidebar(
                 sidebar = sidebar(
@@ -37,8 +30,7 @@ ui <- page_navbar(
                   open = "always",
                   img(src = "30.png", width = "100%"),
                   
-                  hr(style = "margin-bottom: 0"),
-                  
+
                   pickerInput("ROUND_SELECT",
                               "Pick a Round",
                               choices = ROUND_SELECT_CHOICES,
@@ -59,7 +51,21 @@ ui <- page_navbar(
                   card(card_body(plotOutput("VOTES_DIST_PLOT", height = 240),
                                  class = "p-0"),
                        full_screen = TRUE
-                  )),
+                  ),
+                  
+                  actionBttn("P1_INFO",
+                             "  click for info",
+                             style = "simple",
+                             color = "royal",
+                             size = "sm",
+                             icon = icon("robot")
+                  ) %>% 
+                    popover(
+                      "Filter the plots and table by selecting categories in the menus above. The plots may also be filtered by clicking on a row in the table.",
+                      title = "about interactivity",
+                    ),
+                  
+                  ),
                 
                 layout_column_wrap(
                   value_box(
@@ -68,9 +74,7 @@ ui <- page_navbar(
                     showcase = bsicons::bs_icon("clock-fill",
                                                 size = "0.70em"
                                                 ),
-                    # showcase_layout = showcase_left_center(
-                    #   width = 0.2,
-                    # ),
+
                     fill = FALSE,
                     height = "90px",
                     theme = "bg-info"
@@ -84,9 +88,7 @@ ui <- page_navbar(
                     fill = FALSE,
                     height = "90px",
                     theme = "teal",
-                    # showcase_layout = showcase_left_center(
-                    #   width = 0.2,
-                    # )
+
                   ),
                   
                   value_box(
@@ -98,9 +100,7 @@ ui <- page_navbar(
                     fill = FALSE,
                     height = "90px",
                     theme = "green",
-                    # showcase_layout = showcase_left_center(
-                    #   width = 0.2,
-                    # )
+
                   )
                 ),
                 
@@ -111,13 +111,12 @@ ui <- page_navbar(
                   card(
                     sidebar = "GLOBAL_SIDEBAR",
                     full_screen = TRUE,
-                    div(
+                    
                       card_body(
                         min_height = 500,
                         DTOutput(
                           "SONGS_DT", height = 500), 
-                        height = "100%"),
-                      style = "font-size:75%")
+                        height = "100%")
                   ),
                   
                   card(
@@ -147,7 +146,9 @@ ui <- page_navbar(
   nav_panel("Song Data",
             
             page_fluid(
-              
+              tags$style(HTML(".dataTables_wrapper .dataTables_filter input{
+                      width: 50px;}"
+              )),
               tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
 
               layout_sidebar(
@@ -158,7 +159,7 @@ ui <- page_navbar(
                   open = "always",
                   img(src = "30.png", width = "100%"),
                   
-                  hr(style = "margin-bottom: 0"),
+                  #hr(style = "margin-bottom: 0"),
                   
                   awesomeRadio("GROUP_SELECT",
                               "Group plots by:",
@@ -194,7 +195,20 @@ ui <- page_navbar(
                               min = 5,
                               max = 30,
                               value = 15
-                              )
+                              ),
+               
+               actionBttn("P1_INFO",
+                          "  click for info",
+                          style = "simple",
+                          color = "royal",
+                          size = "sm",
+                          icon = icon("robot")
+               ) %>% 
+                 popover(
+                   "Click and drag over points in the box plots to filter the data table to the right.",
+                   title = "about interactivity",
+                 ),
+               
                 ),
                 
                 layout_column_wrap(
@@ -209,9 +223,7 @@ ui <- page_navbar(
                             fill = FALSE,
                             height = "90px",
                             theme = "purple",
-                             # showcase_layout = showcase_left_center(
-                             #   width = 0.2,
-                             # )
+                  
                   ),
                   
                   value_box(
@@ -221,9 +233,7 @@ ui <- page_navbar(
                     showcase = bsicons::bs_icon("arrow-up",
                                                 size = "0.70em"
                     ),
-                    # showcase_layout = showcase_left_center(
-                    #   width = 0.2,
-                    # ),
+
                     fill = FALSE,
                     height = "90px",
                     theme = "indigo"
@@ -257,14 +267,12 @@ ui <- page_navbar(
                       class = "p-0",
                       layout_column_wrap(
                       width = "200px",
-                      #title = "Votes",
                       navset_card_tab(
-                        #title = "Votes Summary",
                         nav_panel("Box Plots", 
-                                  plotOutput("BOXPLOTS", brush = "PLOT_BRUSH")
-                        ),
+                                    plotOutput("BOXPLOTS", brush = "PLOT_BRUSH", height = "100%"),
+                         ),
                         nav_panel("Joy Plots",
-                                  plotOutput("DENSE_HISTO_PLOT"))
+                                  plotOutput("DENSE_HISTO_PLOT", height = "100%"))
                       )
                     ))
                     
@@ -273,15 +281,15 @@ ui <- page_navbar(
                   
                   card(
                     full_screen = TRUE,
-                    div(
+                    #div(
                       card_body(
                         class = "p-0",
                         min_height = 500,
                         DTOutput(
-                          "SONGS_DT2", height = 500), 
+                          "SONGS_DT2",
+                          width = "96%",
+                          height = "100%"), 
                         height = "100%"),
-                      style = "font-size:75%")
-
                       )
                     )
                   )

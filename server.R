@@ -31,7 +31,8 @@ output$SONGS_DT <- renderDT({
         autoWidth = TRUE,
         columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "TRACK_ID", "Comment", "track.duration_ms", "track.explicit", "Title2")))
       )
-    ) 
+    ) %>% 
+    formatStyle(c(0:15), fontSize = '75%')
   })
   
   SONGS_DT_REACTIVE_SEL <- reactive({
@@ -96,12 +97,29 @@ output$SONGS_DT <- renderDT({
             panel.grid.minor = element_blank(),
             axis.ticks.x = element_blank(),
             axis.text.x = element_blank())+
-      ylab(paste0("Points received by ", input$PICKER_SELECT)) +
+      ylab("Points received") +
       xlab("Picker (votes receiver)")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
       coord_flip() 
 
     STANDINGS_PLOT
+    
+  })
+  
+  YLAB_VOTES_PLOT <- reactive({
+    
+    if(length(input$SONGS_DT_rows_selected) > 0){
+      
+      SONGS_DT_SEL_TITLE_pre <- input$SONGS_DT_rows_selected
+      
+      YLAB_VOTES_PLOT <- ylab(paste0("Points allocated to ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 13])))
+      
+    }      
+    else {
+      
+      YLAB_VOTES_PLOT <- ylab(paste0("Points allocated to ", input$PICKER_SELECT))      
+
+    }
     
   })
   
@@ -125,7 +143,8 @@ output$SONGS_DT <- renderDT({
             panel.grid.minor = element_blank(),
             axis.ticks.x = element_blank(),
             axis.text.x = element_blank())+
-      ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
+      YLAB_VOTES_PLOT()+
+      #ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
       xlab("Voter")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
       coord_flip()
@@ -280,10 +299,12 @@ output$SONGS_DT <- renderDT({
     options = list(
       order = list(list(1, 'desc')),
       paging = FALSE,
+      scroller = TRUE,
       scrollY = TRUE,
       scrollX = TRUE,
       autoWidth = TRUE,
-      columnDefs = list(list(visible = FALSE, targets = c("round_abbr"))
+      columnDefs = list(list(visible = FALSE, targets = c("round_abbr")),
+                        list(width = '175', targets = 1)
                         )
     )
     ) %>% 
@@ -295,7 +316,8 @@ output$SONGS_DT <- renderDT({
                    backgroundPosition = 'center') %>% 
       formatStyle(2,
                   fontWeight = 'bold') %>% 
-      formatStyle(c(2, 4, 6:7), "white-space"="nowrap")
+      formatStyle(c(2, 4, 6:7), "white-space"="nowrap") %>% 
+      formatStyle(c(1:7), fontSize = '75%')
     
     
   })

@@ -54,7 +54,7 @@ ui <- page_navbar(
                   ),
                   
                   actionBttn("P1_INFO",
-                             "  click for info",
+                             "click for info",
                              style = "simple",
                              color = "royal",
                              size = "sm",
@@ -143,7 +143,8 @@ ui <- page_navbar(
   ###################################################################################################
   ########################################   PAGE 2 UI   ############################################ 
   ###################################################################################################
-  nav_panel("Song Data",
+  nav_menu("Song Data",
+    nav_panel("Continuous variables",
             
             page_fluid(
               tags$style(HTML(".dataTables_wrapper .dataTables_filter input{
@@ -296,6 +297,145 @@ ui <- page_navbar(
                 )
               
             ),
+  
+  ###################################################################################################
+  ########################################   PAGE 3 UI   ############################################ 
+  ###################################################################################################
+  nav_panel("Categorical variables",
+            
+            page_fluid(
+              tags$style(HTML(".dataTables_wrapper .dataTables_filter input{
+                      width: 50px;}"
+              )),
+              tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
+              
+              layout_sidebar(
+                sidebar = sidebar(
+                  width = 230,
+                  fillable = FALSE,
+                  id = "GLOBAL_SIDEBAR",
+                  open = "always",
+                  img(src = "30.png", width = "100%"),
+                  
+                  #hr(style = "margin-bottom: 0"),
+                  
+                  awesomeRadio("GROUP_SELECT_CAT",
+                               "Group plots by:",
+                               choices = c("Round", "Picker")
+                  ),
+                  pickerInput("PARAM_SELECT_CAT",
+                              label = popover(
+                                id = "PARAM_POP_CAT",
+                                trigger = list(
+                                  "Pick a Variable",
+                                  bsicons::bs_icon("info-circle")
+                                ),
+                                "Tooltip message"
+                              ),
+                              choices = VAR_SELECT_CHOICES_CAT,
+                              choicesOpt = list(
+                                style = rep_len("style = font-weight: bold;", 10)),
+                              
+                              options = pickerOptions(dropupAuto = FALSE,
+                                                      style = "btn-outline-primary")
+                  ),
+                  
+                  card(
+                    card_body(
+                      plotOutput("PARAM_FREQ_PLOT", height = 200),
+                      class = "p-0"
+                    ),
+                    full_screen = TRUE
+                  ),
+                  
+                  actionBttn("P1_INFO",
+                             "  click for info",
+                             style = "simple",
+                             color = "royal",
+                             size = "sm",
+                             icon = icon("robot")
+                  ) %>% 
+                    popover(
+                      "Click and drag over points in the box plots to filter the data table to the right.",
+                      title = "about interactivity",
+                    ),
+                  
+                ),
+                
+                layout_column_wrap(
+                  
+                  
+                  value_box(
+                    title = textOutput("COMMON_TITLE"),
+                    value = textOutput("COMMON_VALUE"),
+                    class = "p-0",
+                    showcase = bsicons::bs_icon("arrow-up",
+                                                size = "0.70em"),
+                    fill = FALSE,
+                    height = "90px",
+                    theme = "green",
+                    
+                  ),
+                  
+                  value_box(
+                    title = textOutput("RARE_TITLE"),
+                    value = textOutput("RARE_VALUE"),
+                    class = "p-0",
+                    showcase = bsicons::bs_icon("arrow-down",
+                                                size = "0.70em"
+                    ),
+                    
+                    fill = FALSE,
+                    height = "90px",
+                    theme = "blue"
+                  )
+                ),
+                
+                layout_column_wrap(
+                  width = NULL,
+                  style = css(grid_template_columns = "3fr 2fr"),
+                  
+                  card(
+                    sidebar = "GLOBAL_SIDEBAR",
+                    full_screen = TRUE,
+                    
+                    card_body(
+                      class = "p-0",
+                      layout_column_wrap(
+                        width = "200px",
+                        navset_card_tab(
+                          nav_panel("Stacked Bar Plots", 
+                                    plotOutput("CATBAR_PLOT", height = "100%"),
+                          ),
+                          nav_panel("Frequency Table",
+                                    DTOutput("CAT_FREQ_TAB", height = "100%"))
+                        )
+                      ))
+                    
+                    
+                  ),
+                  
+                  card(
+                    full_screen = TRUE,
+                    #div(
+                    card_body(
+                      class = "p-0",
+                      min_height = 500,
+                      DTOutput(
+                        "SONGS_DT3",
+                        width = "96%",
+                        height = "100%"), 
+                      height = "100%"),
+                  )
+                )
+              )
+            )
+            
+  )),
+  
+  ###################################################################################################
+  ########################################   PAGE 4 UI   ############################################ 
+  ###################################################################################################
   
   nav_panel("Votes",
             

@@ -94,9 +94,13 @@ output$SONGS_DT <- renderDT({
       geom_text(aes(label = `Points Assigned`), color = "white", size = 4, fontface = "bold", check_overlap = TRUE) +
       theme(axis.text.y = element_text(size = 12),
             axis.title = element_text(size = 12),
+            axis.line = element_line(linetype = "solid"),
             panel.grid.minor = element_blank(),
             axis.ticks.x = element_blank(),
-            axis.text.x = element_blank())+
+            axis.text.x = element_blank(),
+            panel.grid.major = element_blank(), 
+            #panel.grid.minor = element_blank(),
+            panel.background = element_blank())+
       ylab("Points received") +
       xlab("Picker (votes receiver)")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
@@ -142,7 +146,11 @@ output$SONGS_DT <- renderDT({
             axis.title = element_text(size = 12),
             panel.grid.minor = element_blank(),
             axis.ticks.x = element_blank(),
-            axis.text.x = element_blank())+
+            axis.text.x = element_blank(),
+            axis.line = element_line(linetype = "solid"),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank())+
       YLAB_VOTES_PLOT()+
       #ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
       xlab("Voter")+
@@ -210,7 +218,11 @@ output$SONGS_DT <- renderDT({
       ggplot(aes(x = `Points Assigned`))+
       geom_bar(fill = "#8CB5B3", width = 0.7)+
       geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = "white", fontface = "bold", fill = "#B77D67")+
-      theme(panel.grid.minor = element_blank())+
+      theme(axis.line = element_line(linetype = "solid"),
+            panel.grid.minor = element_blank(),
+            panel.grid.major = element_blank(), 
+            #panel.grid.minor = element_blank(),
+            panel.background = element_blank())+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c(0.05, 0.2)))+
       scale_x_continuous(breaks = ~round(unique(pretty(.))))+
       DIST_TITLE()
@@ -226,7 +238,7 @@ output$SONGS_DT <- renderDT({
   SONGS_DT_REACTIVE_2 <- reactive({
     
     SONGS_DT_REACTIVE_2 <- SONGS %>% 
-      select(1, Runtime, 2:5, 13:23, 48, 10, 8, `track popularity`, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`, round_abbr) %>% 
+      select(1, Runtime, 2:5, 13:23, 48, 10, 8, `track popularity`, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`, round_abbr, `duration (mins)`) %>% 
       mutate(Title = paste0("<a href='", track.external_urls.spotify, "' target='_blank'>", Title,"</a>")) %>% 
       mutate(Round = paste0("<a href='", `Playlist URL`, "' target='_blank'>", Round,"</a>")) %>% 
       select(-c(track.external_urls.spotify, `Playlist URL`))
@@ -326,7 +338,11 @@ output$SONGS_DT <- renderDT({
     
     SONGS %>% 
       ggplot(aes(x = .data[[input$PARAM_SELECT]]))+
-      geom_histogram(bins = input$HISTO_SLIDE)
+      geom_histogram(bins = input$HISTO_SLIDE)+
+      theme(axis.line = element_line(linetype = "solid"),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank())
     
   })
   
@@ -351,7 +367,11 @@ output$SONGS_DT <- renderDT({
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
-            legend.position = "none")+
+            legend.position = "none",
+            axis.line = element_line(linetype = "solid"),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank())+
       scale_x_discrete()+
       ylab(input$PARAM_SELECT)
     
@@ -370,7 +390,11 @@ output$SONGS_DT <- renderDT({
       geom_density_ridges(quantile_lines = TRUE, quantiles = 2) +
       theme(text = element_text(size = 12), 
             legend.position = "none",
-            axis.title.y = element_blank()
+            axis.title.y = element_blank(),
+            axis.line = element_line(linetype = "solid"),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank()
             )+
       scale_x_continuous(expand = c(0, 0))+
       scale_y_discrete(expand = expand_scale(mult = c(0.01, 0.15))) +
@@ -430,5 +454,218 @@ output$SONGS_DT <- renderDT({
     MEDIAN_VALUE <- as.character(round(median(SONGS_LONG_REACT()$value), 3))
     
       })
+  
+  
+  ############################################################################################################
+  #############################################  PAGE 3 SERVER  ##############################################
+  ############################################################################################################  
+  SONGS_DT_REACTIVE_3 <- reactive({
+    
+    SONGS_DT_REACTIVE_3 <- SONGS %>% 
+      select(1, Runtime, 2:5, 13:23, 48, 10, 8, `track popularity`, track.duration_ms, Round, Picker_Alias, "explicit" = track.explicit, track.external_urls.spotify, `Playlist URL`, round_abbr, "time signature" = time_signature,"key + mode" = key_mode) %>% 
+      mutate(Title = paste0("<a href='", track.external_urls.spotify, "' target='_blank'>", Title,"</a>")) %>% 
+      mutate(Round = paste0("<a href='", `Playlist URL`, "' target='_blank'>", Round,"</a>")) %>% 
+      select(-c(track.external_urls.spotify, `Playlist URL`))
+    
+    
+  })
+  
+  PARAM_DEF_UPDATE_CAT <- reactive({
+    
+    DEFINITIONS %>%
+      filter(Variable == input$PARAM_SELECT_CAT)%>%
+      pull("Definition")
+    
+  })
+  
+  PARAM_LINK_UPDATE_CAT <- reactive({
+    
+    DEFINITIONS %>%
+      filter(Variable == input$PARAM_SELECT_CAT)%>%
+      pull("Link")
+    
+  })
+  
+  
+  observeEvent(input$PARAM_SELECT_CAT, {
+    
+    update_popover(
+      id = "PARAM_POP_CAT",
+      title = "Spotify definition",
+      PARAM_DEF_UPDATE_CAT(),
+      a("More info", href = PARAM_LINK_UPDATE_CAT(), target = "_blank")
+      
+    )
+    
+  })
+  
+  output$SONGS_DT3 <- renderDT({
+    
+    SONGS2_DT3 <- SONGS_DT_REACTIVE_3() %>% 
+      select(1, 
+             input$PARAM_SELECT_CAT, 
+             Picker, 
+             Round, 
+             Points, 
+             `Artist(s)`, 
+             Album,
+             round_abbr
+      ) %>% 
+      group_by(input$PARAM_SELECT_CAT) %>% 
+      arrange(desc(2))
+    
+    datatable({if (length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT_CAT == "Picker") {
+      brushedPoints(SONGS2_DT3,
+                    brush = input$PLOT_BRUSH, 
+                    xvar = "Picker",
+                    yvar = input$PARAM_SELECT_CAT
+      )
+      
+    } else if(length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT_CAT == "Round") {
+      brushedPoints(SONGS2_DT3, 
+                    brush = input$PLOT_BRUSH, 
+                    xvar = "round_abbr",
+                    yvar = input$PARAM_SELECT_CAT
+      )
+      
+    } else SONGS2_DT3 },
+    fillContainer = TRUE,
+    escape = -c(1, 4),
+    rownames = FALSE,
+    selection = "none",
+    options = list(
+      order = list(list(1, 'desc')),
+      paging = FALSE,
+      scroller = TRUE,
+      scrollY = TRUE,
+      scrollX = TRUE,
+      autoWidth = TRUE,
+      columnDefs = list(list(visible = FALSE, targets = c("round_abbr")),
+                        list(width = '175', targets = 1)
+      )
+    )
+    ) %>% 
+      # formatStyle(2,
+      #             background = if(input$DARK_MODE == "light") { styleColorBar(range(SONGS2_DT3 %>% select(input$PARAM_SELECT_CAT)), 'lightgreen')
+      #             } else styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), '#6610f1'),
+      #             backgroundSize = '98% 88%',
+      #             backgroundRepeat = 'no-repeat',
+      #             backgroundPosition = 'center') %>% 
+      formatStyle(2,
+                  fontWeight = 'bold') %>% 
+      formatStyle(c(2, 4, 6:7), "white-space"="nowrap") %>% 
+      formatStyle(c(1:7), fontSize = '75%')
+    
+    
+  })
+  
+  output$CATBAR_PLOT <- renderPlot({
+    
+    SONGS_LONG_CAT %>% 
+      filter(variable == input$PARAM_SELECT_CAT) %>% 
+      mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>% 
+      ggplot(aes(x = .data[[input$GROUP_SELECT_CAT]],
+             fill = value))+
+      geom_bar(color = "black")+
+      # scale_fill_hue(h = c(0, 360) + 15,
+      #                c = 80,
+      #                l = 65,
+      #                h.start = 0)+
+      theme(text = element_text(size = 12),
+            axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
+            axis.title.x = element_blank(),
+            #legend.position = "none",
+            axis.line = element_line(linetype = "solid"),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank())
+    
+  })
+  
+  output$CAT_FREQ_TAB <- renderDT({
+    
+    CAT_FREQ_DF <- SONGS_LONG_CAT %>% 
+      filter(variable == input$PARAM_SELECT_CAT) %>% 
+      select(value, input$GROUP_SELECT_CAT) %>% 
+      table() %>% 
+      as.data.frame() %>%
+      pivot_wider(names_from = value, values_from = Freq)
+    
+    CAT_FREQ_TAB <- CAT_FREQ_DF %>% 
+      datatable(rownames = FALSE,
+                fillContainer = TRUE,
+                selection = 'none',
+                options = list(dom = 't',
+                               paging = FALSE,
+                               scroller = TRUE,
+                               scrollY = TRUE,
+                               scrollX = TRUE,
+                               autoWidth = TRUE)
+      )
+    
+    
+  })
+  
+  output$PARAM_FREQ_PLOT <- renderPlot({
+    
+    SONGS_LONG_CAT_MOS_DF <- SONGS_LONG_CAT %>% 
+      filter(variable == input$PARAM_SELECT_CAT) %>% 
+      select(value) %>% 
+      group_by(value) %>% 
+      mutate(count = n()) %>% 
+      distinct()
+    
+    PARAM_FREQ_PLOT <- SONGS_LONG_CAT_MOS_DF %>% 
+      ggplot(
+        aes(area = count, 
+            fill = value,
+            label = value
+            )
+      )+
+      geom_treemap()+
+      geom_treemap_text(place = "center",
+                        color = "white"
+                        #grow = TRUE
+                        )+
+      theme(legend.position = "none")
+    
+    PARAM_FREQ_PLOT
+    
+  })
+  
+  SONGS_LONG_CAT_REACT <- reactive({
+    
+    SONGS_LONG_CAT_REACT <- SONGS_LONG_CAT %>% 
+        filter(variable == input$PARAM_SELECT_CAT) %>% 
+        select(value) %>% 
+        group_by(value) %>% 
+        mutate(count = n())
+    
+  })
+  
+  output$COMMON_TITLE <- renderText({
+    
+    paste0("most common ", input$PARAM_SELECT_CAT)
+    
+  })
+  
+  output$COMMON_VALUE <- renderText({
+    
+    COMMON_VALUE <- as.character(Mode2(SONGS_LONG_CAT_REACT()$value))
+    
+  })
+  
+  output$RARE_TITLE <- renderText({
+    
+    paste0("least common ", input$PARAM_SELECT_CAT)
+    
+  })
+  
+  output$RARE_VALUE <- renderText({
+    
+    RARE_VALUE <- as.character(NegMode2(SONGS_LONG_CAT_REACT()$value))
+    
+  })
+  
   
 }

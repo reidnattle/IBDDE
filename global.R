@@ -12,6 +12,8 @@ library(scales)
 library(hms)
 library(rsconnect)
 library(ggridges)
+library(treemapify)
+library(paletteer)
 
 #rsconnect::writeManifest()
 
@@ -20,7 +22,9 @@ SONGS <- read_rds("DATA/SONGS12.rds") %>%
   rename("tempo (BPM)" = tempo) %>% 
   rename("loudness (dB)" = loudness) %>% 
   mutate(Picker = Picker_Alias) %>% 
-  mutate(round_abbr = paste0(str_trunc(Round, width = 12), "..."))
+  mutate(round_abbr = paste0(str_trunc(Round, width = 12), "...")) %>% 
+  mutate("duration (mins)" = round(track.duration_ms / 1000 / 60, 3)) 
+  
 
 VOTES <- read_rds("DATA/VOTES12.rds") 
 
@@ -34,8 +38,25 @@ SONGS_LONG <- SONGS %>%
                         liveness,
                         valence,
                         `tempo (BPM)`, 
-                        `track popularity`
+                        `track popularity`,
+                        `duration (mins)`
                         ), names_to = "variable") 
+
+SONGS_LONG_CAT <- SONGS %>% 
+  select(-c(key, mode)) %>% 
+  mutate("time signature" = as.character(time_signature)) %>% 
+  mutate("explicit" = as.character(track.explicit)) %>% 
+  rename(
+         "mode" = mode_name,
+         "key" = key_name,
+         "key + mode" = key_mode) %>% 
+  pivot_longer(cols = c(
+    `time signature`,
+    explicit,
+    key,
+    mode,
+    `key + mode`
+  ), names_to = "variable") 
 
 
 ROUND_SELECT_CHOICES <- SONGS %>% 
@@ -55,10 +76,24 @@ PICKER_SELECT_CHOICES <- append(PICKER_SELECT_CHOICES, "All Pickers", after = 0)
 VAR_SELECT_CHOICES <- SONGS_LONG %>% 
   select(variable) %>% 
   distinct()
-VAR_SELECT_CHOICES <- sort(VAR_SELECT_CHOICES$variable)
+VAR_SELECT_CHOICES <- as.list(sort(VAR_SELECT_CHOICES$variable))
+
+VAR_SELECT_CHOICES_CAT <- SONGS_LONG_CAT %>% 
+  select(variable) %>% 
+  distinct()
+VAR_SELECT_CHOICES_CAT <- as.list(sort(VAR_SELECT_CHOICES_CAT$variable))
 
 DEFINITIONS <- read_csv("DATA/VAR_DEFS.csv") 
   
+Mode2 <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+NegMode2 <- function(x) {
+  ux <- unique(x)
+  ux[which.min(tabulate(match(x, ux)))]
+}
 
 # IBD logo colors:
 #B77D67 Tan/brown

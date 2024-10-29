@@ -21,9 +21,15 @@ SONGS <- read_rds("DATA/SONGS12.rds") %>%
   rename("track popularity" = track.popularity) %>% 
   rename("tempo (BPM)" = tempo) %>% 
   rename("loudness (dB)" = loudness) %>% 
+  mutate(key_mode = str_remove(key_mode, "or")) %>% 
   mutate(Picker = Picker_Alias) %>% 
   mutate(round_abbr = paste0(str_trunc(Round, width = 12), "...")) %>% 
-  mutate("duration (mins)" = round(track.duration_ms / 1000 / 60, 3)) 
+  mutate("duration (mins)" = round(track.duration_ms / 1000 / 60, 3)) %>% 
+  select(-c(key, mode)) %>%
+  rename(
+    "mode" = mode_name,
+    "key" = key_name,
+    "key + mode" = key_mode) 
   
 
 VOTES <- read_rds("DATA/VOTES12.rds") 
@@ -43,13 +49,8 @@ SONGS_LONG <- SONGS %>%
                         ), names_to = "variable") 
 
 SONGS_LONG_CAT <- SONGS %>% 
-  select(-c(key, mode)) %>% 
   mutate("time signature" = as.character(time_signature)) %>% 
   mutate("explicit" = as.character(track.explicit)) %>% 
-  rename(
-         "mode" = mode_name,
-         "key" = key_name,
-         "key + mode" = key_mode) %>% 
   pivot_longer(cols = c(
     `time signature`,
     explicit,

@@ -333,6 +333,7 @@ ui <- page_navbar(
                                 "Tooltip message"
                               ),
                               choices = VAR_SELECT_CHOICES_CAT,
+                              selected = "key",
                               choicesOpt = list(
                                 style = rep_len("style = font-weight: bold;", 10)),
                               
@@ -356,7 +357,7 @@ ui <- page_navbar(
                              icon = icon("robot")
                   ) %>% 
                     popover(
-                      "Click and drag over points in the box plots to filter the data table to the right.",
+                      "Filter the data table to the right by searching or selecting variables in the containers beneath the column headings.",
                       title = "about interactivity",
                     ),
                   

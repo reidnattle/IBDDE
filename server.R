@@ -5,7 +5,7 @@ server <- function(input, output, session) {
   SONGS_DT_REACTIVE <- reactive({
 
     SONGS_DT_REACTIVE <- SONGS %>% 
-      select(1, Runtime, 2:5, 48, 10, 8, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`) %>% 
+      select(1, Runtime, 2:5, 47, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`, TRACK_ID) %>% 
       filter(if(input$ROUND_SELECT != "All Rounds") Round == input$ROUND_SELECT else TRUE) %>% 
       filter(if(input$PICKER_SELECT != "All Pickers") Picker == input$PICKER_SELECT else TRUE) %>% 
       mutate(Title2 = Title) %>% 
@@ -29,10 +29,10 @@ output$SONGS_DT <- renderDT({
         scrollY = TRUE,
         scrollX = TRUE,
         autoWidth = TRUE,
-        columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "TRACK_ID", "Comment", "track.duration_ms", "track.explicit", "Title2")))
+        columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "track.duration_ms", "track.explicit", "Title2", "TRACK_ID")))
       )
     ) %>% 
-    formatStyle(c(0:15), fontSize = '75%')
+    formatStyle(c(0:13), fontSize = '75%')
   })
   
   SONGS_DT_REACTIVE_SEL <- reactive({
@@ -462,7 +462,7 @@ output$SONGS_DT <- renderDT({
   SONGS_DT_REACTIVE_3 <- reactive({
     
     SONGS_DT_REACTIVE_3 <- SONGS %>% 
-      select(1, Runtime, 2:5, 13:23, 48, 10, 8, `track popularity`, track.duration_ms, Round, Picker_Alias, "explicit" = track.explicit, track.external_urls.spotify, `Playlist URL`, round_abbr, "time signature" = time_signature,"key + mode" = key_mode) %>% 
+      select(1, Runtime, 2:5, 13:23, 48, 10, 8, `track popularity`, track.duration_ms, Round, Picker_Alias, "explicit" = track.explicit, track.external_urls.spotify, `Playlist URL`, round_abbr, "time signature" = time_signature, `key + mode`, key, mode) %>% 
       mutate(Title = paste0("<a href='", track.external_urls.spotify, "' target='_blank'>", Title,"</a>")) %>% 
       mutate(Round = paste0("<a href='", `Playlist URL`, "' target='_blank'>", Round,"</a>")) %>% 
       select(-c(track.external_urls.spotify, `Playlist URL`))
@@ -502,6 +502,7 @@ output$SONGS_DT <- renderDT({
   output$SONGS_DT3 <- renderDT({
     
     SONGS2_DT3 <- SONGS_DT_REACTIVE_3() %>% 
+      mutate(across(c(key, explicit, `key + mode`, `time signature`, mode), factor)) %>% 
       select(1, 
              input$PARAM_SELECT_CAT, 
              Picker, 
@@ -511,46 +512,28 @@ output$SONGS_DT <- renderDT({
              Album,
              round_abbr
       ) %>% 
-      group_by(input$PARAM_SELECT_CAT) %>% 
-      arrange(desc(2))
+      group_by(input$PARAM_SELECT_CAT) #%>% 
+      #arrange(desc(2)) 
     
-    datatable({if (length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT_CAT == "Picker") {
-      brushedPoints(SONGS2_DT3,
-                    brush = input$PLOT_BRUSH, 
-                    xvar = "Picker",
-                    yvar = input$PARAM_SELECT_CAT
+    datatable(
+      SONGS2_DT3, 
+      filter = "top",
+      fillContainer = TRUE,
+      escape = -c(1, 4),
+      rownames = FALSE,
+      selection = "none",
+      options = list(
+        #order = list(list(1, 'desc')),
+        paging = FALSE,
+        scroller = TRUE,
+        scrollY = TRUE,
+        scrollX = TRUE,
+        autoWidth = TRUE,
+        columnDefs = list(list(visible = FALSE, targets = c("round_abbr")),
+                          list(width = '175', targets = 1)
+        )
       )
-      
-    } else if(length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT_CAT == "Round") {
-      brushedPoints(SONGS2_DT3, 
-                    brush = input$PLOT_BRUSH, 
-                    xvar = "round_abbr",
-                    yvar = input$PARAM_SELECT_CAT
-      )
-      
-    } else SONGS2_DT3 },
-    fillContainer = TRUE,
-    escape = -c(1, 4),
-    rownames = FALSE,
-    selection = "none",
-    options = list(
-      order = list(list(1, 'desc')),
-      paging = FALSE,
-      scroller = TRUE,
-      scrollY = TRUE,
-      scrollX = TRUE,
-      autoWidth = TRUE,
-      columnDefs = list(list(visible = FALSE, targets = c("round_abbr")),
-                        list(width = '175', targets = 1)
-      )
-    )
     ) %>% 
-      # formatStyle(2,
-      #             background = if(input$DARK_MODE == "light") { styleColorBar(range(SONGS2_DT3 %>% select(input$PARAM_SELECT_CAT)), 'lightgreen')
-      #             } else styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), '#6610f1'),
-      #             backgroundSize = '98% 88%',
-      #             backgroundRepeat = 'no-repeat',
-      #             backgroundPosition = 'center') %>% 
       formatStyle(2,
                   fontWeight = 'bold') %>% 
       formatStyle(c(2, 4, 6:7), "white-space"="nowrap") %>% 
@@ -558,15 +541,27 @@ output$SONGS_DT <- renderDT({
     
     
   })
-  
+
   output$CATBAR_PLOT <- renderPlot({
     
-    SONGS_LONG_CAT %>% 
+    CAT_FREQ_DF <- SONGS_LONG_CAT %>% 
+      mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>%
       filter(variable == input$PARAM_SELECT_CAT) %>% 
-      mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>% 
-      ggplot(aes(x = .data[[input$GROUP_SELECT_CAT]],
-             fill = value))+
-      geom_bar(color = "black")+
+      select(value, input$GROUP_SELECT_CAT) %>% 
+      table() %>% 
+      as.data.frame() %>%
+      filter(Freq > 0)
+      #pivot_wider(names_from = input$GROUP_SELECT_CAT, values_from = Freq) %>% 
+      #pivot_longer()
+
+    ggplot(CAT_FREQ_DF, 
+           aes(x = .data[[input$GROUP_SELECT_CAT]],
+               y = Freq,
+               fill = value,
+               label = value))+
+      geom_col(color = "black", position = "fill")+
+      geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 3)+
+     # scale_y_continuous(labels = scales::percent)+
       # scale_fill_hue(h = c(0, 360) + 15,
       #                c = 80,
       #                l = 65,
@@ -574,7 +569,8 @@ output$SONGS_DT <- renderDT({
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
-            #legend.position = "none",
+            #axis.title.y = element_blank(),
+            legend.position = "none",
             axis.line = element_line(linetype = "solid"),
             panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
@@ -624,9 +620,9 @@ output$SONGS_DT <- renderDT({
       )+
       geom_treemap()+
       geom_treemap_text(place = "center",
-                        color = "white"
+                        color = "white",
                         #grow = TRUE
-                        )+
+                        fontface = "bold")+
       theme(legend.position = "none")
     
     PARAM_FREQ_PLOT

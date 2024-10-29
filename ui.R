@@ -409,7 +409,8 @@ ui <- page_navbar(
                                     plotOutput("CATBAR_PLOT", height = "100%"),
                           ),
                           nav_panel("Frequency Table",
-                                    DTOutput("CAT_FREQ_TAB", height = "100%"))
+                                    div(DTOutput("CAT_FREQ_TAB", height = "100%"), style = "font-size:80%")
+                                    )
                         )
                       ))
                     

@@ -569,7 +569,7 @@ output$SONGS_DT <- renderDT({
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
-            #axis.title.y = element_blank(),
+            axis.title.y = element_blank(),
             legend.position = "none",
             axis.line = element_line(linetype = "solid"),
             panel.grid.major = element_blank(), 
@@ -578,16 +578,17 @@ output$SONGS_DT <- renderDT({
     
   })
   
+  
+observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
+  
   output$CAT_FREQ_TAB <- renderDT({
     
-    CAT_FREQ_DF <- SONGS_LONG_CAT %>% 
+    CAT_FREQ_TAB <- SONGS_LONG_CAT %>% 
       filter(variable == input$PARAM_SELECT_CAT) %>% 
       select(value, input$GROUP_SELECT_CAT) %>% 
       table() %>% 
       as.data.frame() %>%
-      pivot_wider(names_from = value, values_from = Freq)
-    
-    CAT_FREQ_TAB <- CAT_FREQ_DF %>% 
+      pivot_wider(names_from = value, values_from = Freq) %>% 
       datatable(rownames = FALSE,
                 fillContainer = TRUE,
                 selection = 'none',
@@ -599,9 +600,12 @@ output$SONGS_DT <- renderDT({
                                autoWidth = TRUE)
       )
     
+    CAT_FREQ_TAB
+    
     
   })
-  
+})
+
   output$PARAM_FREQ_PLOT <- renderPlot({
     
     SONGS_LONG_CAT_MOS_DF <- SONGS_LONG_CAT %>% 
@@ -628,6 +632,8 @@ output$SONGS_DT <- renderDT({
     PARAM_FREQ_PLOT
     
   })
+  
+
   
   SONGS_LONG_CAT_REACT <- reactive({
     

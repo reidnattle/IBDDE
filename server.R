@@ -144,7 +144,6 @@ output$SONGS_DT <- renderDT({
       geom_text(aes(label = `Votes Cast`), color = "white", size = 4, fontface = "bold", check_overlap = TRUE) +
       theme(axis.text.y = element_text(size = 12),
             axis.title = element_text(size = 12),
-            panel.grid.minor = element_blank(),
             axis.ticks.x = element_blank(),
             axis.text.x = element_blank(),
             axis.line = element_line(linetype = "solid"),
@@ -501,7 +500,7 @@ output$SONGS_DT <- renderDT({
   
   output$SONGS_DT3 <- renderDT({
     
-    req(input$GROUP_SELECT_CAT)
+    #req(input$GROUP_SELECT_CAT)
     
     SONGS2_DT3 <- SONGS_DT_REACTIVE_3() %>% 
       mutate(across(c(key, explicit, `key + mode`, `time signature`, mode), factor)) %>% 
@@ -580,21 +579,26 @@ output$SONGS_DT <- renderDT({
     
   })
   
-  
-
-  output$CAT_FREQ_TAB_ROUND <- renderDT({
+  CAT_FREQ_TAB_ROUND_DF <- reactive({
+    
     
     req(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT))
     
-    CAT_FREQ_TAB_ROUND <- SONGS_LONG_CAT %>% 
-      mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>%
+    
+    CAT_FREQ_TAB_ROUND_DF <- SONGS_LONG_CAT %>% 
       filter(variable == input$PARAM_SELECT_CAT) %>% 
       select(value, Round) %>% 
       table() %>% 
       as.data.frame() %>% 
       group_by(Round, value) %>% 
       summarise(Freq = sum(Freq)) %>% 
-      ungroup() %>%  
+      ungroup()
+    
+  })
+
+  output$CAT_FREQ_TAB_ROUND <- renderDT({
+    
+    CAT_FREQ_TAB_ROUND <- CAT_FREQ_TAB_ROUND_DF() %>% 
       pivot_wider(names_from = value, values_from = Freq) %>% 
       datatable(rownames = FALSE,
                 fillContainer = TRUE,
@@ -612,16 +616,23 @@ output$SONGS_DT <- renderDT({
     
   })
   
-  output$CAT_FREQ_TAB_PICKER <- renderDT({
+  CAT_FREQ_TAB_PICKER_DF <- reactive({
     
-    CAT_FREQ_TAB_PICKER <- SONGS_LONG_CAT %>% 
+    CAT_FREQ_TAB_PICKER_DF <- SONGS_LONG_CAT %>% 
       filter(variable == input$PARAM_SELECT_CAT) %>% 
       select(value, Picker) %>% 
       table() %>% 
       as.data.frame() %>% 
       group_by(Picker, value) %>% 
       summarise(Freq = sum(Freq)) %>% 
-      ungroup() %>%  
+      ungroup()
+    
+  })
+  
+  
+  output$CAT_FREQ_TAB_PICKER <- renderDT({
+    
+    CAT_FREQ_TAB_PICKER <- CAT_FREQ_TAB_PICKER_DF() %>% 
       pivot_wider(names_from = value, values_from = Freq) %>% 
       datatable(rownames = FALSE,
                 fillContainer = TRUE,

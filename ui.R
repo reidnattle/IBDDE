@@ -49,7 +49,8 @@ ui <- page_navbar(
                   ),
                   
                   card(card_body(plotOutput("VOTES_DIST_PLOT", height = 240),
-                                 class = "p-0"),
+                                 #class = "p-0"
+                                 ),
                        full_screen = TRUE
                   ),
                   
@@ -121,20 +122,40 @@ ui <- page_navbar(
                   
                   card(
                     full_screen = TRUE,
-                    card_body(
-                      class = "p-0",
-                      layout_column_wrap(
-                      width = "200px",
-                      #title = "Votes",
-                      navset_card_tab(
-                        title = "Votes Summary",
-                        nav_panel("Standings", 
-                                  plotOutput("STANDINGS_PLOT")
-                        ),
-                        nav_panel("Allocations",
-                                  plotOutput("VOTE_SUM_PLOT"))
+                    card_header(
+                      radioGroupButtons(
+                        inputId = "VOTE_PLOT_OPT",
+                        choices = c("Standings", "Allocations"),
+                        individual = TRUE
                       )
-                    ))
+                    ),
+                    
+                    card_body(
+                      #class = "p-0",
+                      
+                      conditionalPanel(
+                        condition = "input.VOTE_PLOT_OPT == 'Standings'",
+                        plotOutput("STANDINGS_PLOT")
+                      ),
+                      conditionalPanel(
+                        condition = "input.VOTE_PLOT_OPT == 'Allocations'",
+                        plotOutput("VOTE_SUM_PLOT"),
+                      )
+                      # layout_column_wrap(
+                      # width = "200px",
+                      # #title = "Votes",
+
+                      # 
+                      # navset_card_tab(
+                      #   title = "Votes Summary",
+                      #   nav_panel("Standings", 
+                      #             plotOutput("STANDINGS_PLOT")
+                      #   ),
+                      #   nav_panel("Allocations",
+                      #             plotOutput("VOTE_SUM_PLOT"))
+                      # )
+                    )
+                    
                   )
                 )
               )
@@ -185,7 +206,7 @@ ui <- page_navbar(
                   
                card(
                     card_body(
-                      plotOutput("PARAM_DIST_PLOT", height = 200),
+                      plotOutput("PARAM_DIST_PLOT", height = 160),
                       class = "p-0"
                       ),
                     full_screen = TRUE
@@ -260,37 +281,53 @@ ui <- page_navbar(
                   width = NULL,
                   style = css(grid_template_columns = "3fr 2fr"),
                   
-                  card(
-                    sidebar = "GLOBAL_SIDEBAR",
+                  card(height = "550px",
+                    #sidebar = "GLOBAL_SIDEBAR",
                     full_screen = TRUE,
                     
-                    card_body(
-                      class = "p-0",
-                      layout_column_wrap(
-                      width = "200px",
-                      navset_card_tab(
-                        nav_panel("Box Plots", 
-                                    plotOutput("BOXPLOTS", brush = "PLOT_BRUSH", height = "100%"),
-                         ),
-                        nav_panel("Joy Plots",
-                                  plotOutput("DENSE_HISTO_PLOT", height = "100%"))
+                    card_header(
+                      radioGroupButtons(
+                        inputId = "BOX_JOY_OPT",
+                        choices = c("Box Plot", "Joy Plot"),
+                        individual = TRUE
                       )
-                    ))
+                    ),
                     
-                   
-                  ),
+                    card_body(
+                      height = "100%",
+                      conditionalPanel(
+                        condition = "input.BOX_JOY_OPT == 'Box Plot'",
+                        plotOutput("BOXPLOTS", brush = "PLOT_BRUSH", height = "100%")
+                      ),
+                      conditionalPanel(
+                        condition = "input.BOX_JOY_OPT == 'Joy Plot'",
+                        plotOutput("DENSE_HISTO_PLOT", height = "100%")
+                      )
+                      #class = "p-0",
+                      # layout_column_wrap(
+                      # width = "200px",
+                      # navset_card_tab(
+                      #   nav_panel("Box Plots", 
+                      #               plotOutput("BOXPLOTS", brush = "PLOT_BRUSH", height = "100%"),
+                      #    ),
+                      #   nav_panel("Joy Plots",
+                      #             plotOutput("DENSE_HISTO_PLOT", height = "100%"))
+                      # )
+                    )
+                    ),
+                    
                   
-                  card(
+                  card(height = "550px",
                     full_screen = TRUE,
                     #div(
                       card_body(
-                        class = "p-0",
+                        height = "100%",
+                        #class = "p-0",
                         min_height = 500,
                         DTOutput(
                           "SONGS_DT2",
-                          width = "96%",
-                          height = "100%"), 
-                        height = "100%"),
+                          #width = "96%",
+                          height = "100%")),
                       )
                     )
                   )
@@ -344,7 +381,7 @@ ui <- page_navbar(
                   card(
                     card_body(
                       plotOutput("PARAM_FREQ_PLOT", height = 200),
-                      class = "p-0"
+                      #class = "p-0"
                     ),
                     full_screen = TRUE
                   ),
@@ -409,7 +446,7 @@ ui <- page_navbar(
                     ),
                     
                     card_body(
-                      class = "p-0",
+                      #class = "p-0",
                       conditionalPanel(
                         condition = "input.PLOT_TAB_OPT == 'Stacked Bar Plot'",
                         plotOutput("CATBAR_PLOT", height = "100%")
@@ -431,7 +468,7 @@ ui <- page_navbar(
                     full_screen = TRUE,
                     #div(
                     card_body(
-                      class = "p-0",
+                      #class = "p-0",
                       min_height = 500,
                       DTOutput(
                         "SONGS_DT3",

@@ -501,6 +501,8 @@ output$SONGS_DT <- renderDT({
   
   output$SONGS_DT3 <- renderDT({
     
+    req(input$GROUP_SELECT_CAT)
+    
     SONGS2_DT3 <- SONGS_DT_REACTIVE_3() %>% 
       mutate(across(c(key, explicit, `key + mode`, `time signature`, mode), factor)) %>% 
       select(1, 
@@ -512,8 +514,7 @@ output$SONGS_DT <- renderDT({
              Album,
              round_abbr
       ) %>% 
-      group_by(input$PARAM_SELECT_CAT) #%>% 
-      #arrange(desc(2)) 
+      group_by(input$PARAM_SELECT_CAT)  
     
     datatable(
       SONGS2_DT3, 
@@ -541,21 +542,20 @@ output$SONGS_DT <- renderDT({
     
     
   })
-
+  
   output$CATBAR_PLOT <- renderPlot({
     
-    CAT_FREQ_DF <- SONGS_LONG_CAT %>% 
+    req(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT))
+    
+  CAT_FREQ_DF <- SONGS_LONG_CAT %>% 
       mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>%
       filter(variable == input$PARAM_SELECT_CAT) %>% 
       select(value, input$GROUP_SELECT_CAT) %>% 
       table() %>% 
       as.data.frame() %>%
       filter(Freq > 0)
-      #pivot_wider(names_from = input$GROUP_SELECT_CAT, values_from = Freq) %>% 
-      #pivot_longer()
-
-    ggplot(CAT_FREQ_DF, 
-           aes(x = .data[[input$GROUP_SELECT_CAT]],
+      
+      ggplot(CAT_FREQ_DF, aes(x = .data[[input$GROUP_SELECT_CAT]],
                y = Freq,
                fill = value,
                label = value))+
@@ -576,18 +576,25 @@ output$SONGS_DT <- renderDT({
             panel.grid.minor = element_blank(),
             panel.background = element_blank())
     
+    
+    
   })
   
   
-observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
-  
-  output$CAT_FREQ_TAB <- renderDT({
+
+  output$CAT_FREQ_TAB_ROUND <- renderDT({
     
-    CAT_FREQ_TAB <- SONGS_LONG_CAT %>% 
+    req(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT))
+    
+    CAT_FREQ_TAB_ROUND <- SONGS_LONG_CAT %>% 
+      mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>%
       filter(variable == input$PARAM_SELECT_CAT) %>% 
-      select(value, input$GROUP_SELECT_CAT) %>% 
+      select(value, Round) %>% 
       table() %>% 
-      as.data.frame() %>%
+      as.data.frame() %>% 
+      group_by(Round, value) %>% 
+      summarise(Freq = sum(Freq)) %>% 
+      ungroup() %>%  
       pivot_wider(names_from = value, values_from = Freq) %>% 
       datatable(rownames = FALSE,
                 fillContainer = TRUE,
@@ -600,11 +607,40 @@ observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
                                autoWidth = TRUE)
       )
     
-    CAT_FREQ_TAB
+    CAT_FREQ_TAB_ROUND
     
     
   })
-})
+  
+  output$CAT_FREQ_TAB_PICKER <- renderDT({
+    
+    CAT_FREQ_TAB_PICKER <- SONGS_LONG_CAT %>% 
+      filter(variable == input$PARAM_SELECT_CAT) %>% 
+      select(value, Picker) %>% 
+      table() %>% 
+      as.data.frame() %>% 
+      group_by(Picker, value) %>% 
+      summarise(Freq = sum(Freq)) %>% 
+      ungroup() %>%  
+      pivot_wider(names_from = value, values_from = Freq) %>% 
+      datatable(rownames = FALSE,
+                fillContainer = TRUE,
+                selection = 'none',
+                options = list(dom = 't',
+                               paging = FALSE,
+                               scroller = TRUE,
+                               scrollY = TRUE,
+                               scrollX = TRUE,
+                               autoWidth = TRUE)
+      )
+    
+    CAT_FREQ_TAB_PICKER
+    
+    
+  })
+
+
+observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
 
   output$PARAM_FREQ_PLOT <- renderPlot({
     
@@ -633,7 +669,7 @@ observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
     
   })
   
-
+})
   
   SONGS_LONG_CAT_REACT <- reactive({
     
@@ -668,6 +704,6 @@ observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
     RARE_VALUE <- as.character(NegMode2(SONGS_LONG_CAT_REACT()$value))
     
   })
-  
+       
   
 }

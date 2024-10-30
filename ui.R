@@ -400,20 +400,30 @@ ui <- page_navbar(
                     sidebar = "GLOBAL_SIDEBAR",
                     full_screen = TRUE,
                     
+                    card_header(
+                      radioGroupButtons(
+                        inputId = "PLOT_TAB_OPT",
+                        choices = c("Stacked Bar Plot", "Frequency Table"),
+                        individual = TRUE
+                      )
+                    ),
+                    
                     card_body(
                       class = "p-0",
-                      layout_column_wrap(
-                        width = "200px",
-                        navset_card_tab(
-                          nav_panel("Stacked Bar Plots", 
-                                    plotOutput("CATBAR_PLOT", height = "100%"),
-                          ),
-                          nav_panel("Frequency Table",
-                                    div(DTOutput("CAT_FREQ_TAB", height = "100%"), style = "font-size:80%")
-                                    )
-                        )
-                      ))
-                    
+                      conditionalPanel(
+                        condition = "input.PLOT_TAB_OPT == 'Stacked Bar Plot'",
+                        plotOutput("CATBAR_PLOT", height = "100%")
+                      ),
+                      conditionalPanel(
+                        condition = "input.PLOT_TAB_OPT == 'Frequency Table' && input.GROUP_SELECT_CAT == 'Round'",
+                        div(DTOutput("CAT_FREQ_TAB_ROUND", height = "100%"), style = "font-size:80%"),
+                      ),
+                      conditionalPanel(
+                        condition = "input.PLOT_TAB_OPT == 'Frequency Table' && input.GROUP_SELECT_CAT == 'Picker'",
+                        div(DTOutput("CAT_FREQ_TAB_PICKER", height = "100%"), style = "font-size:80%"),
+                      )
+                      
+                      )
                     
                   ),
                   

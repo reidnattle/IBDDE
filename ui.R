@@ -81,7 +81,8 @@ ui <- page_navbar(
 
                     fill = FALSE,
                     height = "90px",
-                    theme = "bg-info"
+                    theme = "cyan",
+                    class = "text-dark"
                   ),
                   
                   value_box(
@@ -91,7 +92,7 @@ ui <- page_navbar(
                                                 size = "0.70em"),
                     fill = FALSE,
                     height = "90px",
-                    theme = "teal",
+                    theme = "purple",
 
                   ),
                   
@@ -267,7 +268,7 @@ ui <- page_navbar(
                   value_box(
                      title = textOutput("MEDIAN_TITLE"),
                      value = textOutput("MEDIAN_VALUE"),
-                     class = "p-0",
+                     class = c("text-dark", "p-0"),
                     showcase = bsicons::bs_icon("arrows-collapse",
                                                 size = "0.70em"
                     ),

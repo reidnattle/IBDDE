@@ -558,8 +558,8 @@ output$SONGS_DT <- renderDT({
                y = Freq,
                fill = value,
                label = value))+
-      geom_col(color = "black", position = "fill")+
-      geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 3)+
+      geom_col(color = "#212121", position = "fill")+
+      geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 3, color = "#212121")+
      # scale_y_continuous(labels = scales::percent)+
       # scale_fill_hue(h = c(0, 360) + 15,
       #                c = 80,
@@ -671,7 +671,7 @@ observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
       )+
       geom_treemap()+
       geom_treemap_text(place = "center",
-                        color = "white",
+                        color = "#212121",
                         #grow = TRUE
                         fontface = "bold")+
       theme(legend.position = "none")

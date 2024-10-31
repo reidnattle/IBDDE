@@ -12,8 +12,11 @@ ui <- page_navbar(
 
   title = "{ IBDDE }",
   
-  theme = bs_theme(version = 5, preset = "cerulean") %>% 
-    bs_add_variables("bslib-value-box-horizontal-break-point" = "1px"),
+  theme = bs_theme(version = 5, preset = "yeti") %>% 
+    bs_add_variables("bslib-value-box-horizontal-break-point" = "1px"), #%>% 
+    #bs_add_variables("navbar-bg" = "#86cecb"),
+  #inverse = TRUE,
+  #bg = "navy",
 
   nav_panel("Songs and Standings",
             
@@ -49,7 +52,7 @@ ui <- page_navbar(
                   ),
                   
                   card(card_body(plotOutput("VOTES_DIST_PLOT", height = 240),
-                                 #class = "p-0"
+                                 class = "p-0"
                                  ),
                        full_screen = TRUE
                   ),
@@ -381,7 +384,7 @@ ui <- page_navbar(
                   card(
                     card_body(
                       plotOutput("PARAM_FREQ_PLOT", height = 200),
-                      #class = "p-0"
+                      class = "p-0"
                     ),
                     full_screen = TRUE
                   ),

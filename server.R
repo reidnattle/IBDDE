@@ -116,7 +116,7 @@ output$SONGS_DT <- renderDT({
       
       SONGS_DT_SEL_TITLE_pre <- input$SONGS_DT_rows_selected
       
-      YLAB_VOTES_PLOT <- ylab(paste0("Points allocated to ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 13])))
+      YLAB_VOTES_PLOT <- ylab(paste0("Points allocated to ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 12])))
       
     }      
     else {
@@ -152,7 +152,7 @@ output$SONGS_DT <- renderDT({
             panel.background = element_blank())+
       YLAB_VOTES_PLOT()+
       #ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
-      xlab("Voter")+
+      xlab("Vote allocator")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
       coord_flip()
     
@@ -201,7 +201,7 @@ output$SONGS_DT <- renderDT({
       SONGS_DT_SEL_TITLE_pre <- input$SONGS_DT_rows_selected
       
       DIST_TITLE <- ggtitle("Point Distribution", 
-                            subtitle = paste0("Song: ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 13]))
+                            subtitle = paste0("Song: ", as.character(SONGS_DT_REACTIVE()[SONGS_DT_SEL_TITLE_pre, 12]))
       )
     } else 
       
@@ -561,10 +561,11 @@ output$SONGS_DT <- renderDT({
       geom_col(color = "#212121", position = "fill")+
       geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 3, color = "#212121")+
      # scale_y_continuous(labels = scales::percent)+
-      # scale_fill_hue(h = c(0, 360) + 15,
-      #                c = 80,
-      #                l = 65,
-      #                h.start = 0)+
+      scale_fill_hue(#h = c(0, 360) + 15,
+                     c = 70,
+                     #l = 65,
+                     #h.start = 0
+                     )+
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
@@ -674,6 +675,11 @@ observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
                         color = "#212121",
                         #grow = TRUE
                         fontface = "bold")+
+      scale_fill_hue(#h = c(0, 360) + 15,
+        c = 80,
+        #l = 65,
+        #h.start = 0
+      )+
       theme(legend.position = "none")
     
     PARAM_FREQ_PLOT

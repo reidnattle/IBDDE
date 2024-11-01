@@ -12,12 +12,12 @@ ui <- page_navbar(
 
   title = "{ IBDDE }",
   
-  theme = bs_theme(version = 5, preset = "yeti") %>% 
-    bs_add_variables("bslib-value-box-horizontal-break-point" = "1px"), #%>% 
-    #bs_add_variables("navbar-bg" = "#86cecb"),
-  #inverse = TRUE,
-  #bg = "navy",
-
+  theme = bs_add_variables(
+    bs_theme(preset = "yeti"),
+    #"navbar-light-brand-color" = "darkgreen"
+    ),
+  #bg = "#168DB8",
+  inverse = TRUE,
   nav_panel("Songs and Standings",
             
             
@@ -60,7 +60,7 @@ ui <- page_navbar(
                   actionBttn("P1_INFO",
                              "click for info",
                              style = "simple",
-                             color = "royal",
+                             color = "success",
                              size = "sm",
                              icon = icon("robot")
                   ) %>% 
@@ -92,19 +92,19 @@ ui <- page_navbar(
                                                 size = "0.70em"),
                     fill = FALSE,
                     height = "90px",
-                    theme = "purple",
+                    theme = "green",
 
                   ),
                   
                   value_box(
                     title = "explicit songs",
                     value = textOutput("PCT_EXPLICIT"),
-                    showcase = bsicons::bs_icon("emoji-grimace-fill",
+                    showcase = bsicons::bs_icon("explicit",
                                                 size = "0.70em"
                     ),
                     fill = FALSE,
                     height = "90px",
-                    theme = "green",
+                    theme = "purple",
 
                   )
                 ),
@@ -130,7 +130,8 @@ ui <- page_navbar(
                       radioGroupButtons(
                         inputId = "VOTE_PLOT_OPT",
                         choices = c("Standings", "Allocations"),
-                        individual = TRUE
+                        individual = TRUE,
+                        size = "sm"
                       )
                     ),
                     
@@ -226,7 +227,7 @@ ui <- page_navbar(
                actionBttn("P1_INFO",
                           "  click for info",
                           style = "simple",
-                          color = "royal",
+                          color = "success",
                           size = "sm",
                           icon = icon("robot")
                ) %>% 
@@ -293,7 +294,8 @@ ui <- page_navbar(
                       radioGroupButtons(
                         inputId = "BOX_JOY_OPT",
                         choices = c("Box Plot", "Joy Plot"),
-                        individual = TRUE
+                        individual = TRUE,
+                        size = "sm"
                       )
                     ),
                     
@@ -393,7 +395,7 @@ ui <- page_navbar(
                   actionBttn("P1_INFO",
                              "  click for info",
                              style = "simple",
-                             color = "royal",
+                             color = "success",
                              size = "sm",
                              icon = icon("robot")
                   ) %>% 
@@ -445,7 +447,8 @@ ui <- page_navbar(
                       radioGroupButtons(
                         inputId = "PLOT_TAB_OPT",
                         choices = c("Stacked Bar Plot", "Frequency Table"),
-                        individual = TRUE
+                        individual = TRUE,
+                        size = "sm"
                       )
                     ),
                     
@@ -497,7 +500,9 @@ ui <- page_navbar(
             ),
   
   nav_spacer(),
-  nav_item(h4("Itty Bitty Ditties [data explorer]")),
+  nav_item(h4("Itty Bitty Ditties [data explorer]", 
+              #style = "color: #002f6c; font-weight: bold;"
+              )),
   nav_item(link_git),
   nav_item(input_dark_mode(id = "DARK_MODE", mode = "dark")), 
 )

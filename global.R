@@ -15,6 +15,8 @@ library(ggridges)
 library(treemapify)
 library(paletteer)
 
+options(shiny.useragg = TRUE)
+thematic_shiny(font = "auto")
 #rsconnect::writeManifest()
 
 SONGS <- read_rds("DATA/SONGS12.rds") %>% 
@@ -49,8 +51,9 @@ SONGS_LONG <- SONGS %>%
                         ), names_to = "variable") 
 
 SONGS_LONG_CAT <- SONGS %>% 
-  mutate("time signature" = as.character(time_signature)) %>% 
-  mutate("explicit" = as.character(track.explicit)) %>% 
+  mutate("time signature" = as.character(paste0(time_signature, "/4"))) %>% 
+  mutate("explicit" = as.character(track.explicit)) %>%
+  #mutate(`time signature` = paste(time_signature, "/4")) %>% 
   pivot_longer(cols = c(
     `time signature`,
     explicit,
@@ -94,6 +97,11 @@ Mode2 <- function(x) {
 NegMode2 <- function(x) {
   ux <- unique(x)
   ux[which.min(tabulate(match(x, ux)))]
+}
+
+gg_color_hue <- function(n) {
+  hues = seq(15, 375, length = n + 1)
+  hcl(h = hues, l = 65, c = 100)[1:n]
 }
 
 # IBD logo colors:

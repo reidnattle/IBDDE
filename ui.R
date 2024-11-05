@@ -1,6 +1,6 @@
 
 source("global.R")
-thematic_on(font = "auto")
+#thematic_on(font = "auto")
 
 link_git <- tags$a(shiny::icon("github"), 
                    href = "https://github.com/reidnattle/IBDDE", 
@@ -13,11 +13,16 @@ ui <- page_navbar(
   title = "{ IBDDE }",
   
   theme = bs_add_variables(
-    bs_theme(preset = "yeti"),
+    bs_theme(preset = "sketchy",
+             info = "#008cba"
+             #008cba
+             #info = "#5A4FCF"
+             ),
+    "bslib-value-box-horizontal-break-point" = "1px"
     #"navbar-light-brand-color" = "darkgreen"
     ),
-  #bg = "#168DB8",
-  inverse = TRUE,
+  bg = "#008cba",
+  #inverse = TRUE,
   nav_panel("Songs and Standings",
             
             
@@ -38,17 +43,21 @@ ui <- page_navbar(
                               "Pick a Round",
                               choices = ROUND_SELECT_CHOICES,
                               selected = "All Rounds",
-                              options = pickerOptions(actionsBox = TRUE,
-                                                      dropupAuto = FALSE,
-                                                      style = "btn-outline-primary")
+                              options = list(actionsBox = TRUE,
+                                             dropupAuto = FALSE,
+                                             style = "btn-info"
+                                             #style = "btn-sm"
+                              )
                               ),
                   pickerInput("PICKER_SELECT",
                               "Pick a Picker",
                               choices = PICKER_SELECT_CHOICES,
                               selected = "All Pickers",
-                              options = pickerOptions(actionsBox = TRUE,
+                              options = list(actionsBox = TRUE,
                                                       dropupAuto = FALSE,
-                                                      style = "btn-outline-primary")
+                                                      style = "btn-info"
+                                                      #style = "btn-sm"
+                                             )
                   ),
                   
                   card(card_body(plotOutput("VOTES_DIST_PLOT", height = 240),
@@ -73,26 +82,27 @@ ui <- page_navbar(
                 
                 layout_column_wrap(
                   value_box(
-                    title = "runtime",
+                    title = "total runtime",
                     value = textOutput("RUNTIME"),
-                    showcase = bsicons::bs_icon("clock-fill",
+                    showcase = bsicons::bs_icon("hourglass-bottom",
                                                 size = "0.70em"
                                                 ),
 
                     fill = FALSE,
                     height = "90px",
-                    theme = "cyan",
-                    class = "text-dark"
+                    theme = "blue"#,
+                    #class = "text-dark"
                   ),
                   
                   value_box(
                     title = "average runtime",
                     value = textOutput("AVG_RUNTIME"),
-                    showcase = bsicons::bs_icon("clock",
+                    #class = c("text-dark", "p-0"),
+                    showcase = bsicons::bs_icon("stopwatch",
                                                 size = "0.70em"),
                     fill = FALSE,
                     height = "90px",
-                    theme = "green",
+                    theme = "teal",
 
                   ),
                   
@@ -131,7 +141,8 @@ ui <- page_navbar(
                         inputId = "VOTE_PLOT_OPT",
                         choices = c("Standings", "Allocations"),
                         individual = TRUE,
-                        size = "sm"
+                        size = "sm",
+                        status = "btn-outline"
                       )
                     ),
                     
@@ -146,21 +157,7 @@ ui <- page_navbar(
                         condition = "input.VOTE_PLOT_OPT == 'Allocations'",
                         plotOutput("VOTE_SUM_PLOT"),
                       )
-                      # layout_column_wrap(
-                      # width = "200px",
-                      # #title = "Votes",
-
-                      # 
-                      # navset_card_tab(
-                      #   title = "Votes Summary",
-                      #   nav_panel("Standings", 
-                      #             plotOutput("STANDINGS_PLOT")
-                      #   ),
-                      #   nav_panel("Allocations",
-                      #             plotOutput("VOTE_SUM_PLOT"))
-                      # )
                     )
-                    
                   )
                 )
               )
@@ -190,7 +187,8 @@ ui <- page_navbar(
                   
                   awesomeRadio("GROUP_SELECT",
                               "Group plots by:",
-                              choices = c("Round", "Picker")
+                              choices = c("Round", "Picker"),
+                              status = "info"
                   ),
                   pickerInput("PARAM_SELECT",
                               label = popover(
@@ -205,11 +203,24 @@ ui <- page_navbar(
                               choicesOpt = list(
                                 style = rep_len("style = font-weight: bold;", 10)),
                  
-                              options = pickerOptions(dropupAuto = FALSE,
-                                                      style = "btn-outline-primary")
+                              options = list(dropupAuto = FALSE,
+                                                      style = "btn-info"
+                                                      #style = "btn-sm"
+                                             )
                               ),
                   
                card(
+                 card_header(
+                   
+                   radioGroupButtons(
+                     inputId = "HISTO_DENSE_OPT",
+                     choices = c("Histogram", "Density"),
+                     individual = TRUE,
+                     size = "sm",
+                     status = "btn-outline"
+                   )
+                   
+                 ),
                     card_body(
                       plotOutput("PARAM_DIST_PLOT", height = 160),
                       class = "p-0"
@@ -217,12 +228,16 @@ ui <- page_navbar(
                     full_screen = TRUE
                   ),
                   
-                  sliderInput("HISTO_SLIDE",
+                  conditionalPanel(
+                    
+                    condition = "input.HISTO_DENSE_OPT == 'Histogram'",
+                    
+                    sliderInput("HISTO_SLIDE",
                               "Number of bins:",
                               min = 5,
                               max = 30,
                               value = 15
-                              ),
+                              )),
                
                actionBttn("P1_INFO",
                           "  click for info",
@@ -269,7 +284,7 @@ ui <- page_navbar(
                   value_box(
                      title = textOutput("MEDIAN_TITLE"),
                      value = textOutput("MEDIAN_VALUE"),
-                     class = c("text-dark", "p-0"),
+                     #class = c("text-dark", "p-0"),
                     showcase = bsicons::bs_icon("arrows-collapse",
                                                 size = "0.70em"
                     ),
@@ -295,7 +310,8 @@ ui <- page_navbar(
                         inputId = "BOX_JOY_OPT",
                         choices = c("Box Plot", "Joy Plot"),
                         individual = TRUE,
-                        size = "sm"
+                        size = "sm",
+                        status = "btn-outline"
                       )
                     ),
                     
@@ -309,16 +325,6 @@ ui <- page_navbar(
                         condition = "input.BOX_JOY_OPT == 'Joy Plot'",
                         plotOutput("DENSE_HISTO_PLOT", height = "100%")
                       )
-                      #class = "p-0",
-                      # layout_column_wrap(
-                      # width = "200px",
-                      # navset_card_tab(
-                      #   nav_panel("Box Plots", 
-                      #               plotOutput("BOXPLOTS", brush = "PLOT_BRUSH", height = "100%"),
-                      #    ),
-                      #   nav_panel("Joy Plots",
-                      #             plotOutput("DENSE_HISTO_PLOT", height = "100%"))
-                      # )
                     )
                     ),
                     
@@ -364,7 +370,8 @@ ui <- page_navbar(
                   
                   awesomeRadio("GROUP_SELECT_CAT",
                                "Group plots by:",
-                               choices = c("Round", "Picker")
+                               choices = c("Round", "Picker"),
+                               status = "info"
                   ),
                   pickerInput("PARAM_SELECT_CAT",
                               label = popover(
@@ -380,17 +387,50 @@ ui <- page_navbar(
                               choicesOpt = list(
                                 style = rep_len("style = font-weight: bold;", 10)),
                               
-                              options = pickerOptions(dropupAuto = FALSE,
-                                                      style = "btn-outline-primary")
+                              options = list(dropupAuto = FALSE,
+                                                      style = "btn-info"
+                                             #         style = "btn-sm"
+                                             )
                   ),
                   
+                  
                   card(
-                    card_body(
-                      plotOutput("PARAM_FREQ_PLOT", height = 200),
-                      class = "p-0"
+                    
+                    card_header(
+                      radioGroupButtons(
+                        inputId = "TREE_BAR_OPT",
+                        choices = c("Bar Plot", "Treemap", "Frequency Table"),
+                        individual = TRUE,
+                        size = "sm",
+                        status = "btn-outline"
+                      )
                     ),
+                    
+                    card_body(
+                      height = 250,
+                      conditionalPanel(
+                        condition = "input.TREE_BAR_OPT == 'Bar Plot'",
+                        plotOutput("CAT_FULL_BAR", height = "100%")
+                      ),
+                      conditionalPanel(
+                        condition = "input.TREE_BAR_OPT == 'Treemap'",
+                        plotOutput("TREEMAP_PLOT", height = "100%")
+                      ),
+                      conditionalPanel(
+                        condition = "input.TREE_BAR_OPT == 'Frequency Table'",
+                        DTOutput("FREQ_TAB_FULL", height = "100%")
+                      )  
+                      ),
                     full_screen = TRUE
                   ),
+                  
+                  # card(
+                  #   card_body(
+                  #     plotOutput("TREEMAP_PLOT", height = 200),
+                  #     class = "p-0"
+                  #   ),
+                  #   full_screen = TRUE
+                  # ),
                   
                   actionBttn("P1_INFO",
                              "  click for info",
@@ -412,12 +452,12 @@ ui <- page_navbar(
                   value_box(
                     title = textOutput("COMMON_TITLE"),
                     value = textOutput("COMMON_VALUE"),
-                    class = "p-0",
+                    #class = c("text-dark", "p-0"),
                     showcase = bsicons::bs_icon("arrow-up",
                                                 size = "0.70em"),
                     fill = FALSE,
                     height = "90px",
-                    theme = "green",
+                    theme = "teal",
                     
                   ),
                   
@@ -431,7 +471,7 @@ ui <- page_navbar(
                     
                     fill = FALSE,
                     height = "90px",
-                    theme = "blue"
+                    theme = "cyan"
                   )
                 ),
                 
@@ -448,7 +488,8 @@ ui <- page_navbar(
                         inputId = "PLOT_TAB_OPT",
                         choices = c("Stacked Bar Plot", "Frequency Table"),
                         individual = TRUE,
-                        size = "sm"
+                        size = "sm",
+                        status = "btn-outline"
                       )
                     ),
                     
@@ -460,11 +501,15 @@ ui <- page_navbar(
                       ),
                       conditionalPanel(
                         condition = "input.PLOT_TAB_OPT == 'Frequency Table' && input.GROUP_SELECT_CAT == 'Round'",
-                        div(DTOutput("CAT_FREQ_TAB_ROUND", height = "100%"), style = "font-size:80%"),
+                        div(DTOutput("CAT_FREQ_TAB_ROUND", height = "100%"), 
+                            #style = "font-size:90%"
+                            ),
                       ),
                       conditionalPanel(
                         condition = "input.PLOT_TAB_OPT == 'Frequency Table' && input.GROUP_SELECT_CAT == 'Picker'",
-                        div(DTOutput("CAT_FREQ_TAB_PICKER", height = "100%"), style = "font-size:80%"),
+                        div(DTOutput("CAT_FREQ_TAB_PICKER", height = "100%"), 
+                            #style = "font-size:90%"
+                            ),
                       )
                       
                       )

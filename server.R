@@ -20,6 +20,7 @@ output$SONGS_DT <- renderDT({
     
     datatable(
       SONGS_DT_REACTIVE(),
+      style = "bootstrap",
       fillContainer = TRUE,
       escape = FALSE,
       #rownames = FALSE,
@@ -32,7 +33,7 @@ output$SONGS_DT <- renderDT({
         columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "track.duration_ms", "track.explicit", "Title2", "TRACK_ID")))
       )
     ) %>% 
-    formatStyle(c(0:13), fontSize = '75%')
+    formatStyle(c(0:13), fontSize = '85%')
   })
   
   SONGS_DT_REACTIVE_SEL <- reactive({
@@ -94,13 +95,12 @@ output$SONGS_DT <- renderDT({
       geom_text(aes(label = `Points Assigned`), color = "white", size = 4, fontface = "bold", check_overlap = TRUE) +
       theme(axis.text.y = element_text(size = 12),
             axis.title = element_text(size = 12),
-            axis.line = element_line(linetype = "solid"),
             panel.grid.minor = element_blank(),
-            axis.ticks.x = element_blank(),
-            axis.text.x = element_blank(),
-            panel.grid.major = element_blank(), 
-            #panel.grid.minor = element_blank(),
-            panel.background = element_blank())+
+            #axis.ticks.x = element_blank(),
+            #axis.text.x = element_blank(),
+            #panel.grid.major = element_blank(), 
+            #panel.background = element_blank()
+            )+
       ylab("Points received") +
       xlab("Picker (votes receiver)")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
@@ -144,12 +144,13 @@ output$SONGS_DT <- renderDT({
       geom_text(aes(label = `Votes Cast`), color = "white", size = 4, fontface = "bold", check_overlap = TRUE) +
       theme(axis.text.y = element_text(size = 12),
             axis.title = element_text(size = 12),
-            axis.ticks.x = element_blank(),
-            axis.text.x = element_blank(),
-            axis.line = element_line(linetype = "solid"),
-            panel.grid.major = element_blank(), 
+            #axis.ticks.x = element_blank(),
+            #axis.text.x = element_blank(),
+            #axis.line = element_line(linetype = "solid"),
+            #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            panel.background = element_blank())+
+            #panel.background = element_blank()
+            )+
       YLAB_VOTES_PLOT()+
       #ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
       xlab("Vote allocator")+
@@ -215,13 +216,14 @@ output$SONGS_DT <- renderDT({
     
     VOTES_DIST_PLOT <- SONGS_DIST_REACTIVE_VOTES() %>% 
       ggplot(aes(x = `Points Assigned`))+
-      geom_bar(fill = "#8CB5B3", width = 0.7)+
-      geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = "white", fontface = "bold", fill = "#B77D67")+
-      theme(axis.line = element_line(linetype = "solid"),
+      geom_bar(fill = "#8CB5B3", width = 0.7, color = "#39FF14")+
+      geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = "white", fontface = "bold", fill = "black")+
+      theme(#axis.line = element_line(linetype = "solid"),
             panel.grid.minor = element_blank(),
-            panel.grid.major = element_blank(), 
+            #panel.grid.major = element_blank(), 
             #panel.grid.minor = element_blank(),
-            panel.background = element_blank())+
+            #panel.background = element_blank()
+            )+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c(0.05, 0.2)))+
       scale_x_continuous(breaks = ~round(unique(pretty(.))))+
       DIST_TITLE()
@@ -303,6 +305,7 @@ output$SONGS_DT <- renderDT({
       )
       
     } else SONGS2_DT2 },
+    style = "bootstrap",
     fillContainer = TRUE,
     escape = -c(1, 4),
     rownames = FALSE,
@@ -328,7 +331,19 @@ output$SONGS_DT <- renderDT({
       formatStyle(2,
                   fontWeight = 'bold') %>% 
       formatStyle(c(2, 4, 6:7), "white-space"="nowrap") %>% 
-      formatStyle(c(1:7), fontSize = '75%')
+      formatStyle(c(1:7), fontSize = '85%')
+    
+    
+  })
+  
+  HISTO_DENSE <- reactive({
+    
+    if(input$HISTO_DENSE_OPT == "Density"){
+      
+      HISTO_DENSE <- geom_area(stat = "density", fill = "#8CB5B3", color = "#39FF14", alpha = 0.6)
+    } else {
+      HISTO_DENSE <- geom_histogram(bins = input$HISTO_SLIDE, fill = "#8CB5B3", color = "#39FF14")
+    }
     
     
   })
@@ -337,11 +352,12 @@ output$SONGS_DT <- renderDT({
     
     SONGS %>% 
       ggplot(aes(x = .data[[input$PARAM_SELECT]]))+
-      geom_histogram(bins = input$HISTO_SLIDE)+
-      theme(axis.line = element_line(linetype = "solid"),
-            panel.grid.major = element_blank(), 
+      HISTO_DENSE()+
+      theme(#axis.line = element_line(linetype = "solid"),
+            #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            panel.background = element_blank())
+            #panel.background = element_blank()
+            )
     
   })
   
@@ -367,10 +383,11 @@ output$SONGS_DT <- renderDT({
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
             legend.position = "none",
-            axis.line = element_line(linetype = "solid"),
-            panel.grid.major = element_blank(), 
+            #axis.line = element_line(linetype = "solid"),
+            #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            panel.background = element_blank())+
+            #panel.background = element_blank()
+            )+
       scale_x_discrete()+
       ylab(input$PARAM_SELECT)
     
@@ -390,10 +407,10 @@ output$SONGS_DT <- renderDT({
       theme(text = element_text(size = 12), 
             legend.position = "none",
             axis.title.y = element_blank(),
-            axis.line = element_line(linetype = "solid"),
-            panel.grid.major = element_blank(), 
+            #axis.line = element_line(linetype = "solid"),
+            #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            panel.background = element_blank()
+            #panel.background = element_blank()
             )+
       scale_x_continuous(expand = c(0, 0))+
       scale_y_discrete(expand = expand_scale(mult = c(0.01, 0.15))) +
@@ -517,6 +534,7 @@ output$SONGS_DT <- renderDT({
     
     datatable(
       SONGS2_DT3, 
+      style = "bootstrap",
       filter = "top",
       fillContainer = TRUE,
       escape = -c(1, 4),
@@ -537,7 +555,9 @@ output$SONGS_DT <- renderDT({
       formatStyle(2,
                   fontWeight = 'bold') %>% 
       formatStyle(c(2, 4, 6:7), "white-space"="nowrap") %>% 
-      formatStyle(c(1:7), fontSize = '75%')
+      formatStyle(c(1:7), fontSize = '85%') %>% 
+      formatStyle(1, 
+                  backgroundColor = )
     
     
   })
@@ -558,8 +578,8 @@ output$SONGS_DT <- renderDT({
                y = Freq,
                fill = value,
                label = value))+
-      geom_col(color = "#212121", position = "fill")+
-      geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 3, color = "#212121")+
+      geom_col(color = "#212121", position = "fill", linewidth = 0.2)+
+      geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 4, color = "black")+
      # scale_y_continuous(labels = scales::percent)+
       scale_fill_hue(#h = c(0, 360) + 15,
                      c = 70,
@@ -574,7 +594,8 @@ output$SONGS_DT <- renderDT({
             axis.line = element_line(linetype = "solid"),
             panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            panel.background = element_blank())
+            panel.background = element_blank()
+            )
     
     
     
@@ -602,6 +623,7 @@ output$SONGS_DT <- renderDT({
     CAT_FREQ_TAB_ROUND <- CAT_FREQ_TAB_ROUND_DF() %>% 
       pivot_wider(names_from = value, values_from = Freq) %>% 
       datatable(rownames = FALSE,
+                style = "bootstrap",
                 fillContainer = TRUE,
                 selection = 'none',
                 options = list(dom = 't',
@@ -636,6 +658,7 @@ output$SONGS_DT <- renderDT({
     CAT_FREQ_TAB_PICKER <- CAT_FREQ_TAB_PICKER_DF() %>% 
       pivot_wider(names_from = value, values_from = Freq) %>% 
       datatable(rownames = FALSE,
+                style = "bootstrap",
                 fillContainer = TRUE,
                 selection = 'none',
                 options = list(dom = 't',
@@ -652,18 +675,18 @@ output$SONGS_DT <- renderDT({
   })
 
 
-observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
+#observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT, input$TREE_BAR_OPT), {
 
-  output$PARAM_FREQ_PLOT <- renderPlot({
+  output$TREEMAP_PLOT <- renderPlot({
     
-    SONGS_LONG_CAT_MOS_DF <- SONGS_LONG_CAT %>% 
+    SONGS_LONG_CAT_MOS_DF_TREE <- SONGS_LONG_CAT %>% 
       filter(variable == input$PARAM_SELECT_CAT) %>% 
       select(value) %>% 
       group_by(value) %>% 
       mutate(count = n()) %>% 
       distinct()
     
-    PARAM_FREQ_PLOT <- SONGS_LONG_CAT_MOS_DF %>% 
+    TREEMAP_PLOT <- SONGS_LONG_CAT_MOS_DF_TREE %>% 
       ggplot(
         aes(area = count, 
             fill = value,
@@ -682,9 +705,58 @@ observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT), {
       )+
       theme(legend.position = "none")
     
-    PARAM_FREQ_PLOT
-    
+    TREEMAP_PLOT
+
   })
+  
+#})
+
+
+
+
+output$CAT_FULL_BAR <- renderPlot({
+  
+  SONGS_LONG_CAT_MOS_DF_BAR <- SONGS_LONG_CAT %>% 
+    filter(variable == input$PARAM_SELECT_CAT) %>% 
+    select(value) %>% 
+    group_by(value) %>% 
+    mutate(count = n()) %>% 
+    distinct()
+  
+  CAT_FULL_BAR <- SONGS_LONG_CAT_MOS_DF_BAR %>% 
+    ggplot(aes(x = reorder(value, count), y = count, fill = value))+
+    geom_col()+
+    scale_fill_discrete()+
+    theme(
+      legend.position = "none",
+      axis.title.y = element_blank(),
+      #axis.line = element_line(linetype = "solid"),
+      #panel.grid.major = element_blank(), 
+      panel.grid.minor = element_blank(),
+      #panel.background = element_blank()
+      )+
+    coord_flip()
+  
+  CAT_FULL_BAR
+  
+})
+
+output$FREQ_TAB_FULL <- renderDT({
+  
+  FREQ_DF <- SONGS_LONG_CAT_REACT() %>% 
+    distinct() 
+  
+  
+  FREQ_TAB_FULL <- FREQ_DF
+  datatable(FREQ_DF, 
+            rownames = FALSE,
+            class = "compact",
+            style = "bootstrap",
+            options = list(paging = FALSE,
+                           searching = FALSE,
+                           info = FALSE)
+  ) %>% 
+    formatStyle(1:2, fontSize = "80%")
   
 })
   

@@ -60,23 +60,13 @@ ui <- page_navbar(
                                              )
                   ),
                   
+                  hr(),
+                  
                   card(card_body(plotOutput("VOTES_DIST_PLOT", height = 240),
                                  class = "p-0"
                                  ),
                        full_screen = TRUE
-                  ),
-                  
-                  actionBttn("P1_INFO",
-                             "click for info",
-                             style = "simple",
-                             color = "success",
-                             size = "sm",
-                             icon = icon("robot")
-                  ) %>% 
-                    popover(
-                      "Filter the plots and table by selecting categories in the menus above. The plots may also be filtered by clicking on a row in the table.",
-                      title = "about interactivity",
-                    ),
+                  )
                   
                   ),
                 
@@ -185,8 +175,8 @@ ui <- page_navbar(
                   
                   #hr(style = "margin-bottom: 0"),
                   
-                  awesomeRadio("GROUP_SELECT",
-                              "Group plots by:",
+                 awesomeRadio("GROUP_SELECT",
+                              "Group plot by:",
                               choices = c("Round", "Picker"),
                               status = "info"
                   ),
@@ -211,7 +201,7 @@ ui <- page_navbar(
                   
                card(
                  card_header(
-                   
+                   card_title(h6("Full playlist summary")),
                    radioGroupButtons(
                      inputId = "HISTO_DENSE_OPT",
                      choices = c("Histogram", "Density"),
@@ -237,19 +227,7 @@ ui <- page_navbar(
                               min = 5,
                               max = 30,
                               value = 15
-                              )),
-               
-               actionBttn("P1_INFO",
-                          "  click for info",
-                          style = "simple",
-                          color = "success",
-                          size = "sm",
-                          icon = icon("robot")
-               ) %>% 
-                 popover(
-                   "Click and drag over points in the box plots to filter the data table to the right.",
-                   title = "about interactivity",
-                 ),
+                              ))
                
                 ),
                 
@@ -312,7 +290,13 @@ ui <- page_navbar(
                         individual = TRUE,
                         size = "sm",
                         status = "btn-outline"
-                      )
+                      ),
+                      
+                        popover(
+                          bsicons::bs_icon("robot", class = "ms-auto"), 
+                          "Click and drag over points in the box plots to filter the data table to the right.",
+                          title = "about interactivity"),
+                      class = "d-flex align-items-center gap-1"
                     ),
                     
                     card_body(
@@ -369,7 +353,7 @@ ui <- page_navbar(
                   #hr(style = "margin-bottom: 0"),
                   
                   awesomeRadio("GROUP_SELECT_CAT",
-                               "Group plots by:",
+                               "Group plot by:",
                                choices = c("Round", "Picker"),
                                status = "info"
                   ),
@@ -397,6 +381,8 @@ ui <- page_navbar(
                   card(
                     
                     card_header(
+                      card_title(h6("Full playlist summary")),
+                      
                       radioGroupButtons(
                         inputId = "TREE_BAR_OPT",
                         choices = c("Bar Plot", "Treemap", "Frequency Table"),
@@ -404,9 +390,10 @@ ui <- page_navbar(
                         size = "sm",
                         status = "btn-outline"
                       )
-                    ),
-                    
+                      ),
+                      
                     card_body(
+                      class = "p-0",
                       height = 250,
                       conditionalPanel(
                         condition = "input.TREE_BAR_OPT == 'Bar Plot'",
@@ -431,18 +418,6 @@ ui <- page_navbar(
                   #   ),
                   #   full_screen = TRUE
                   # ),
-                  
-                  actionBttn("P1_INFO",
-                             "  click for info",
-                             style = "simple",
-                             color = "success",
-                             size = "sm",
-                             icon = icon("robot")
-                  ) %>% 
-                    popover(
-                      "Filter the data table to the right by searching or selecting variables in the containers beneath the column headings.",
-                      title = "about interactivity",
-                    ),
                   
                 ),
                 
@@ -480,6 +455,7 @@ ui <- page_navbar(
                   style = css(grid_template_columns = "3fr 2fr"),
                   
                   card(
+                    height = "550px",
                     sidebar = "GLOBAL_SIDEBAR",
                     full_screen = TRUE,
                     
@@ -490,7 +466,26 @@ ui <- page_navbar(
                         individual = TRUE,
                         size = "sm",
                         status = "btn-outline"
-                      )
+                      ),
+
+                      popover(
+                        bsicons::bs_icon("robot", class = "ms-auto"), 
+                        "Filter the data table to the right by searching or selecting variables in the containers beneath the column headings.",
+                        title = "about interactivity"),
+                      
+                      conditionalPanel(
+                        condition = "input.PLOT_TAB_OPT == 'Stacked Bar Plot'",
+                        popover(
+                          bsicons::bs_icon("gear"), 
+                          awesomeRadio(
+                            inputId = "PROP_COUNT_OPT",
+                            label = "Configure Y to display:",
+                            choices = c("proportion of songs", "count of songs")
+                          ),
+                          title = "plot controls")),
+                      
+                      class = "d-flex align-items-center gap-1"
+                      
                     ),
                     
                     card_body(
@@ -549,5 +544,5 @@ ui <- page_navbar(
               #style = "color: #002f6c; font-weight: bold;"
               )),
   nav_item(link_git),
-  nav_item(input_dark_mode(id = "DARK_MODE", mode = "dark")), 
+  nav_item(input_dark_mode(id = "DARK_MODE", mode = "light")), 
 )

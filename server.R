@@ -236,6 +236,7 @@ output$SONGS_DT <- renderDT({
   #############################################  PAGE 2 SERVER  ##############################################
   ############################################################################################################
   
+  
   SONGS_DT_REACTIVE_2 <- reactive({
     
     SONGS_DT_REACTIVE_2 <- SONGS %>% 
@@ -368,6 +369,14 @@ output$SONGS_DT <- renderDT({
     } else
       NULL
   }) 
+  
+  
+  PLOT_TITLE_REACTIVE <- reactive({
+    
+    PLOT_TITLE_REACTIVE <- ggtitle(paste0(input$PARAM_SELECT, " by ", input$GROUP_SELECT))
+    
+  })
+  
 
   output$BOXPLOTS <- renderPlot({
     
@@ -383,13 +392,15 @@ output$SONGS_DT <- renderDT({
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
             legend.position = "none",
+            plot.title = element_text(size = 20, hjust = 1),
             #axis.line = element_line(linetype = "solid"),
             #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
             #panel.background = element_blank()
             )+
       scale_x_discrete()+
-      ylab(input$PARAM_SELECT)
+      ylab(input$PARAM_SELECT)+
+      PLOT_TITLE_REACTIVE()
     
   })
   
@@ -414,7 +425,8 @@ output$SONGS_DT <- renderDT({
             )+
       scale_x_continuous(expand = c(0, 0))+
       scale_y_discrete(expand = expand_scale(mult = c(0.01, 0.15))) +
-      xlab(input$PARAM_SELECT)
+      xlab(input$PARAM_SELECT)+
+      PLOT_TITLE_REACTIVE()
     
   })
   
@@ -558,8 +570,29 @@ output$SONGS_DT <- renderDT({
       formatStyle(c(1:7), fontSize = '85%') %>% 
       formatStyle(1, 
                   backgroundColor = )
+  })
+  
+  PLOT_TITLE_CAT_REACTIVE <- reactive({
     
+    PLOT_TITLE_CAT_REACTIVE <- ggtitle(paste0(input$PARAM_SELECT_CAT, " by ", input$GROUP_SELECT_CAT))
     
+  })
+  
+  PROP_COUNT_Y <- reactive({
+    
+    if(input$PROP_COUNT_OPT == "proportion of songs"){
+      PROP_COUNT_Y <- c(geom_col(color = "#212121", position = "fill", linewidth = 0.2),
+                        geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 4, color = "black"),
+                        scale_y_continuous(name = "proportion of songs")
+      )
+      
+    } else {
+      PROP_COUNT_Y <- c(geom_col(color = "#212121", linewidth = 0.2),
+                        geom_text(position = position_stack(vjust = 0.5), fontface = "bold", size = 4, color = "black"),
+                        scale_y_continuous(name = "number of songs", breaks = ~round(pretty(.)))
+                        #ylab("number of songs")
+      )
+    }
   })
   
   output$CATBAR_PLOT <- renderPlot({
@@ -578,8 +611,7 @@ output$SONGS_DT <- renderDT({
                y = Freq,
                fill = value,
                label = value))+
-      geom_col(color = "#212121", position = "fill", linewidth = 0.2)+
-      geom_text(position = position_fill(vjust = 0.5), fontface = "bold", size = 4, color = "black")+
+      PROP_COUNT_Y()+
      # scale_y_continuous(labels = scales::percent)+
       scale_fill_hue(#h = c(0, 360) + 15,
                      c = 70,
@@ -589,13 +621,14 @@ output$SONGS_DT <- renderDT({
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
-            axis.title.y = element_blank(),
             legend.position = "none",
             axis.line = element_line(linetype = "solid"),
             panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            panel.background = element_blank()
-            )
+            panel.background = element_blank(),
+            plot.title = element_text(size = 20, hjust = 1)
+            )+
+        PLOT_TITLE_CAT_REACTIVE()
     
     
     
@@ -726,7 +759,12 @@ output$CAT_FULL_BAR <- renderPlot({
   CAT_FULL_BAR <- SONGS_LONG_CAT_MOS_DF_BAR %>% 
     ggplot(aes(x = reorder(value, count), y = count, fill = value))+
     geom_col()+
-    scale_fill_discrete()+
+    scale_fill_hue(#h = c(0, 360) + 15,
+      c = 70,
+      #l = 65,
+      #h.start = 0
+    )+
+    #scale_fill_discrete()+
     theme(
       legend.position = "none",
       axis.title.y = element_blank(),
@@ -750,11 +788,13 @@ output$FREQ_TAB_FULL <- renderDT({
   FREQ_TAB_FULL <- FREQ_DF
   datatable(FREQ_DF, 
             rownames = FALSE,
-            class = "compact",
+            class = "display",
             style = "bootstrap",
             options = list(paging = FALSE,
                            searching = FALSE,
-                           info = FALSE)
+                           info = FALSE,
+                           order = list(list(1, 'desc'))
+            )
   ) %>% 
     formatStyle(1:2, fontSize = "80%")
   

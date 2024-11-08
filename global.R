@@ -91,12 +91,13 @@ DEFINITIONS <- read_csv("DATA/VAR_DEFS.csv")
   
 Mode2 <- function(x) {
   ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
+  paste(ux[which(tabulate(match(x, ux)) == max(tabulate(match(x, ux))))], collapse = ", ")
+  
 }
 
 NegMode2 <- function(x) {
   ux <- unique(x)
-  ux[which.min(tabulate(match(x, ux)))]
+  paste(ux[which(tabulate(match(x, ux)) == min(tabulate(match(x, ux))))], collapse = ", ")
 }
 
 gg_color_hue <- function(n) {

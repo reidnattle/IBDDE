@@ -39,7 +39,7 @@ ui <- page_navbar(
                   open = "always",
                   
                  card( 
-                   class = c("text-black"),
+                   #class = c("text-black"),
                  
                    card_header("Filter Tables & Plots",
                                class = c("bg-teal", "text-black", "font-weight-bold"),
@@ -573,5 +573,5 @@ ui <- page_navbar(
               #style = "color: #002f6c; font-weight: bold;"
               )),
   nav_item(link_git),
-  nav_item(input_dark_mode(id = "DARK_MODE", mode = "light")), 
+  nav_item(input_dark_mode(id = "DARK_MODE", mode = "dark")), 
 )

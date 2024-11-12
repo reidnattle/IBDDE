@@ -32,20 +32,30 @@ ui <- page_navbar(
 
               layout_sidebar(
                 sidebar = sidebar(
+                  img(src = "30.png", width = "100%"),
                   width = 230,
                   fillable = FALSE,
                   id = "GLOBAL_SIDEBAR",
                   open = "always",
-                  img(src = "30.png", width = "100%"),
                   
-
-                  pickerInput("ROUND_SELECT",
+                 card( 
+                   class = c("text-black"),
+                 
+                   card_header("Filter Tables & Plots",
+                               class = c("bg-teal", "text-black", "font-weight-bold"),
+                   ),
+                    
+                  card_body(
+                    
+                    pickerInput("ROUND_SELECT",
                               "Pick a Round",
                               choices = ROUND_SELECT_CHOICES,
                               selected = "All Rounds",
                               options = list(actionsBox = TRUE,
                                              dropupAuto = FALSE,
-                                             style = "btn-info"
+                                             style = c("btn-info"),
+                                             container = 'body'
+                                             
                                              #style = "btn-sm"
                               )
                               ),
@@ -55,12 +65,14 @@ ui <- page_navbar(
                               selected = "All Pickers",
                               options = list(actionsBox = TRUE,
                                                       dropupAuto = FALSE,
-                                                      style = "btn-info"
+                                                      style = "btn-info",
+                                             container = 'body'
+                                             
                                                       #style = "btn-sm"
                                              )
-                  ),
+                  ))),
                   
-                  hr(),
+                  #hr(),
                   
                   card(card_body(plotOutput("VOTES_DIST_PLOT", height = 240),
                                  class = "p-0"
@@ -174,11 +186,18 @@ ui <- page_navbar(
                   img(src = "30.png", width = "100%"),
                   
                   #hr(style = "margin-bottom: 0"),
-                  
-                 awesomeRadio("GROUP_SELECT",
+                 card( 
+                  # class = "bg-info",
+                 card_header(
+                   class = c("bg-teal", "text-black", "font-weight-bold"),
+                   
+                   "Select & Group Data"
+                   ),
+                   
+                   card_body(awesomeRadio("GROUP_SELECT",
                               "Group plot by:",
                               choices = c("Round", "Picker"),
-                              status = "info"
+                              status = "primary"
                   ),
                   pickerInput("PARAM_SELECT",
                               label = popover(
@@ -194,10 +213,10 @@ ui <- page_navbar(
                                 style = rep_len("style = font-weight: bold;", 10)),
                  
                               options = list(dropupAuto = FALSE,
-                                                      style = "btn-info"
-                                                      #style = "btn-sm"
+                                             style = "btn-info",
+                                             container = 'body'
                                              )
-                              ),
+                              ))),
                   
                card(
                  card_header(
@@ -215,21 +234,24 @@ ui <- page_navbar(
                       plotOutput("PARAM_DIST_PLOT", height = 160),
                       class = "p-0"
                       ),
-                    full_screen = TRUE
+                    full_screen = TRUE,
+                 
+                 conditionalPanel(
+                   
+                   condition = "input.HISTO_DENSE_OPT == 'Histogram'",
+                   
+                   sliderInput("HISTO_SLIDE",
+                               "Number of bins:",
+                               min = 5,
+                               max = 30,
+                               value = 15
+                   ))
+                 
+               )
+                 
                   ),
                   
-                  conditionalPanel(
-                    
-                    condition = "input.HISTO_DENSE_OPT == 'Histogram'",
-                    
-                    sliderInput("HISTO_SLIDE",
-                              "Number of bins:",
-                              min = 5,
-                              max = 30,
-                              value = 15
-                              ))
-               
-                ),
+
                 
                 layout_column_wrap(
                   
@@ -351,11 +373,16 @@ ui <- page_navbar(
                   img(src = "30.png", width = "100%"),
                   
                   #hr(style = "margin-bottom: 0"),
-                  
-                  awesomeRadio("GROUP_SELECT_CAT",
+                  card(
+                    #class = "bg-info",
+                    card_header("Select & Group Data",
+                                class = c("bg-teal", "text-black", "font-weight-bold"),
+                    ),
+                    
+                    awesomeRadio("GROUP_SELECT_CAT",
                                "Group plot by:",
                                choices = c("Round", "Picker"),
-                               status = "info"
+                               status = "primary"
                   ),
                   pickerInput("PARAM_SELECT_CAT",
                               label = popover(
@@ -372,10 +399,12 @@ ui <- page_navbar(
                                 style = rep_len("style = font-weight: bold;", 10)),
                               
                               options = list(dropupAuto = FALSE,
-                                                      style = "btn-info"
+                                             style = "btn-info",
+                                             container = 'body'
+                                             
                                              #         style = "btn-sm"
                                              )
-                  ),
+                  )),
                   
                   
                   card(

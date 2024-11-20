@@ -3,7 +3,7 @@
 server <- function(input, output, session) {
   
   SONGS_DT_REACTIVE <- reactive({
-
+    
     SONGS_DT_REACTIVE <- SONGS %>% 
       select(1, Runtime, 2:5, 47, track.duration_ms, Round, Picker_Alias, track.explicit, track.external_urls.spotify, `Playlist URL`, TRACK_ID) %>% 
       filter(if(input$ROUND_SELECT != "All Rounds") Round == input$ROUND_SELECT else TRUE) %>% 
@@ -12,11 +12,9 @@ server <- function(input, output, session) {
       mutate(Title = paste0("<a href='", track.external_urls.spotify, "' target='_blank'>", Title,"</a>")) %>% 
       mutate(Round = paste0("<a href='", `Playlist URL`, "' target='_blank'>", Round,"</a>")) %>% 
       select(-c(track.external_urls.spotify, `Playlist URL`))
-      
-    
   })
   
-output$SONGS_DT <- renderDT({
+  output$SONGS_DT <- renderDT({
     
     datatable(
       SONGS_DT_REACTIVE(),
@@ -33,7 +31,9 @@ output$SONGS_DT <- renderDT({
         columnDefs = list(list(visible = FALSE, targets = c("Picker_Alias", "track.duration_ms", "track.explicit", "Title2", "TRACK_ID")))
       )
     ) %>% 
-    formatStyle(c(0:13), fontSize = '85%')
+      formatStyle(1,
+                  fontWeight = 'bold') %>% 
+      formatStyle(c(0:13), fontSize = '85%')
   })
   
   SONGS_DT_REACTIVE_SEL <- reactive({
@@ -43,29 +43,27 @@ output$SONGS_DT <- renderDT({
       SONGS_DT_REACTIVE_SEL_PRE <- input$SONGS_DT_rows_selected 
       
       SONGS_DT_REACTIVE_SEL <- SONGS_DT_REACTIVE()[SONGS_DT_REACTIVE_SEL_PRE, ]
-
+      
     }      
     else {
-      
       SONGS_DT_REACTIVE_SEL <- SONGS_DT_REACTIVE() 
-
-      SONGS_DT_REACTIVE_SEL
       
+      SONGS_DT_REACTIVE_SEL
     }
     
   })
   
   
   VOTES_SONGS_REACTIVE <- reactive({
-      
-      VOTES_SONGS_REACTIVE <- SONGS_DT_REACTIVE_SEL() %>% 
-        right_join(VOTES %>% select(`Points Assigned`, Comment, `Voter ID`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID))
-
-      
-    })
-
-  ### VALUE BOX OUTPUTS ###
     
+    VOTES_SONGS_REACTIVE <- SONGS_DT_REACTIVE_SEL() %>% 
+      right_join(VOTES %>% select(`Points Assigned`, Comment, `Voter ID`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID))
+    
+    
+  })
+  
+  ### VALUE BOX OUTPUTS ###
+  
   output$RUNTIME <- renderText({
     str_remove(str_remove(hms(sum(round(SONGS_DT_REACTIVE_SEL()$track.duration_ms/1000))), "^0+"), "^:+")
   })
@@ -100,12 +98,12 @@ output$SONGS_DT <- renderDT({
             #axis.text.x = element_blank(),
             #panel.grid.major = element_blank(), 
             #panel.background = element_blank()
-            )+
+      )+
       ylab("Points received") +
       xlab("Picker (votes receiver)")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
       coord_flip() 
-
+    
     STANDINGS_PLOT
     
   })
@@ -122,7 +120,7 @@ output$SONGS_DT <- renderDT({
     else {
       
       YLAB_VOTES_PLOT <- ylab(paste0("Points allocated to ", input$PICKER_SELECT))      
-
+      
     }
     
   })
@@ -150,7 +148,7 @@ output$SONGS_DT <- renderDT({
             #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
             #panel.background = element_blank()
-            )+
+      )+
       YLAB_VOTES_PLOT()+
       #ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
       xlab("Vote allocator")+
@@ -182,7 +180,7 @@ output$SONGS_DT <- renderDT({
     else {
       
       SONGS_DIST_REACTIVE()
-
+      
     }
     
   })
@@ -191,7 +189,7 @@ output$SONGS_DT <- renderDT({
     
     SONGS_DIST_REACTIVE_VOTES <- VOTES %>% 
       right_join(SONGS_DT_REACTIVE_DIST_SEL(), by = join_by(TRACK_ID)) 
-      
+    
     
     SONGS_DIST_REACTIVE_VOTES
   })
@@ -206,9 +204,9 @@ output$SONGS_DT <- renderDT({
       )
     } else 
       
-    DIST_TITLE <- ggtitle("Points distributed to", 
-                          subtitle = paste0(input$PICKER_SELECT, " in ", str_trunc(input$ROUND_SELECT, 15))
-    )
+      DIST_TITLE <- ggtitle("Points distributed to", 
+                            subtitle = paste0(input$PICKER_SELECT, " in ", str_trunc(input$ROUND_SELECT, 15))
+      )
     
   })
   
@@ -219,17 +217,17 @@ output$SONGS_DT <- renderDT({
       geom_bar(fill = "#8CB5B3", width = 0.7, color = "#39FF14")+
       geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = "white", fontface = "bold", fill = "black")+
       theme(#axis.line = element_line(linetype = "solid"),
-            panel.grid.minor = element_blank(),
-            #panel.grid.major = element_blank(), 
-            #panel.grid.minor = element_blank(),
-            #panel.background = element_blank()
-            )+
+        panel.grid.minor = element_blank(),
+        #panel.grid.major = element_blank(), 
+        #panel.grid.minor = element_blank(),
+        #panel.background = element_blank()
+      )+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c(0.05, 0.2)))+
       scale_x_continuous(breaks = ~round(unique(pretty(.))))+
       DIST_TITLE()
     
     VOTES_DIST_PLOT
-
+    
   })
   
   ############################################################################################################
@@ -263,7 +261,7 @@ output$SONGS_DT <- renderDT({
       pull("Link")
     
   })
-
+  
   
   observeEvent(input$PARAM_SELECT, {
     
@@ -288,7 +286,7 @@ output$SONGS_DT <- renderDT({
              `Artist(s)`, 
              Album,
              round_abbr
-             ) %>% 
+      ) %>% 
       arrange(desc(2))
     
     datatable({if (length(input$PLOT_BRUSH) > 0 & input$GROUP_SELECT == "Picker") {
@@ -320,16 +318,16 @@ output$SONGS_DT <- renderDT({
       autoWidth = TRUE,
       columnDefs = list(list(visible = FALSE, targets = c("round_abbr")),
                         list(width = '175', targets = 1)
-                        )
+      )
     )
     ) %>% 
       formatStyle(2,
-                   background = if(input$DARK_MODE == "light") { styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), 'lightgreen')
-                     } else styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), '#6610f1'),
-                   backgroundSize = '98% 88%',
-                   backgroundRepeat = 'no-repeat',
-                   backgroundPosition = 'center') %>% 
-      formatStyle(2,
+                  background = if(input$DARK_MODE == "light") { styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), 'lightgreen')
+                  } else styleColorBar(range(SONGS2_DT2 %>% select(input$PARAM_SELECT)), '#6610f1'),
+                  backgroundSize = '98% 88%',
+                  backgroundRepeat = 'no-repeat',
+                  backgroundPosition = 'center') %>% 
+      formatStyle(c(1:2),
                   fontWeight = 'bold') %>% 
       formatStyle(c(2, 4, 6:7), "white-space"="nowrap") %>% 
       formatStyle(c(1:7), fontSize = '85%')
@@ -355,17 +353,17 @@ output$SONGS_DT <- renderDT({
       ggplot(aes(x = .data[[input$PARAM_SELECT]]))+
       HISTO_DENSE()+
       theme(#axis.line = element_line(linetype = "solid"),
-            #panel.grid.major = element_blank(), 
-            panel.grid.minor = element_blank(),
-            #panel.background = element_blank()
-            )
+        #panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        #panel.background = element_blank()
+      )
     
   })
   
   X_LAB_BOX <- reactive({
     
-   if(input$GROUP_SELECT == "Round") {
-    scale_x_discrete(label=function(x) paste0(str_trunc(x, width = 12), "..."))
+    if(input$GROUP_SELECT == "Round") {
+      scale_x_discrete(label=function(x) paste0(str_trunc(x, width = 12), "..."))
     } else
       NULL
   }) 
@@ -377,7 +375,7 @@ output$SONGS_DT <- renderDT({
     
   })
   
-
+  
   output$BOXPLOTS <- renderPlot({
     
     SONGS_LONG %>%
@@ -397,7 +395,7 @@ output$SONGS_DT <- renderDT({
             #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
             #panel.background = element_blank()
-            )+
+      )+
       scale_x_discrete()+
       ylab(input$PARAM_SELECT)+
       PLOT_TITLE_REACTIVE()
@@ -413,7 +411,7 @@ output$SONGS_DT <- renderDT({
         x = value, 
         y = reorder(.data[[input$GROUP_SELECT]], value, FUN = median), 
         fill = .data[[input$GROUP_SELECT]]
-        ))+
+      ))+
       geom_density_ridges(quantile_lines = TRUE, quantiles = 2) +
       theme(text = element_text(size = 12), 
             legend.position = "none",
@@ -422,7 +420,7 @@ output$SONGS_DT <- renderDT({
             #panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
             #panel.background = element_blank()
-            )+
+      )+
       scale_x_continuous(expand = c(0, 0))+
       scale_y_discrete(expand = expand_scale(mult = c(0.01, 0.15))) +
       xlab(input$PARAM_SELECT)+
@@ -436,7 +434,7 @@ output$SONGS_DT <- renderDT({
     
     SONGS_LONG_REACT <- SONGS_LONG %>% 
       filter(variable == input$PARAM_SELECT) 
-      
+    
   })
   
   PARAM_MIN <- reactive({
@@ -448,40 +446,40 @@ output$SONGS_DT <- renderDT({
   
   
   output$MIN_TITLE <- renderText({
-
+    
     paste0("min ", input$PARAM_SELECT)
     
-      })
+  })
   
   output$MIN_VALUE <- renderText({
-
+    
     MIN_VALUE <- as.character(round(min(SONGS_LONG_REACT()$value), 3))
-
-      })
+    
+  })
   
   output$MAX_TITLE <- renderText({
-
+    
     paste0("max ", input$PARAM_SELECT)
     
-      })
+  })
   
   output$MAX_VALUE <- renderText({
-
+    
     MAX_VALUE <- as.character(round(max(SONGS_LONG_REACT()$value), 3))
     
-      })
+  })
   
   output$MEDIAN_TITLE <- renderText({
-
+    
     paste0("median ", input$PARAM_SELECT)
     
-      })
+  })
   
   output$MEDIAN_VALUE <- renderText({
-
+    
     MEDIAN_VALUE <- as.character(round(median(SONGS_LONG_REACT()$value), 3))
     
-      })
+  })
   
   
   ############################################################################################################
@@ -564,8 +562,8 @@ output$SONGS_DT <- renderDT({
         )
       )
     ) %>% 
-      formatStyle(2,
-                  fontWeight = 'bold') %>% 
+      formatStyle(c(1:2),
+                  fontWeight = 'bold') %>%  
       formatStyle(c(2, 4, 6:7), "white-space"="nowrap") %>% 
       formatStyle(c(1:7), fontSize = '85%') %>% 
       formatStyle(1, 
@@ -599,25 +597,25 @@ output$SONGS_DT <- renderDT({
     
     req(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT))
     
-  CAT_FREQ_DF <- SONGS_LONG_CAT %>% 
+    CAT_FREQ_DF <- SONGS_LONG_CAT %>% 
       mutate(Round = paste0(str_trunc(Round, width = 12), "...")) %>%
       filter(variable == input$PARAM_SELECT_CAT) %>% 
       select(value, input$GROUP_SELECT_CAT) %>% 
       table() %>% 
       as.data.frame() %>%
       filter(Freq > 0)
-      
-      ggplot(CAT_FREQ_DF, aes(x = .data[[input$GROUP_SELECT_CAT]],
-               y = Freq,
-               fill = value,
-               label = value))+
+    
+    ggplot(CAT_FREQ_DF, aes(x = .data[[input$GROUP_SELECT_CAT]],
+                            y = Freq,
+                            fill = value,
+                            label = value))+
       PROP_COUNT_Y()+
-     # scale_y_continuous(labels = scales::percent)+
+      # scale_y_continuous(labels = scales::percent)+
       scale_fill_hue(#h = c(0, 360) + 15,
-                     c = 70,
-                     #l = 65,
-                     #h.start = 0
-                     )+
+        c = 70,
+        #l = 65,
+        #h.start = 0
+      )+
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             axis.title.x = element_blank(),
@@ -627,8 +625,8 @@ output$SONGS_DT <- renderDT({
             panel.grid.minor = element_blank(),
             panel.background = element_blank(),
             plot.title = element_text(size = 20, hjust = 1)
-            )+
-        PLOT_TITLE_CAT_REACTIVE()
+      )+
+      PLOT_TITLE_CAT_REACTIVE()
     
     
     
@@ -650,7 +648,7 @@ output$SONGS_DT <- renderDT({
       ungroup()
     
   })
-
+  
   output$CAT_FREQ_TAB_ROUND <- renderDT({
     
     CAT_FREQ_TAB_ROUND <- CAT_FREQ_TAB_ROUND_DF() %>% 
@@ -706,10 +704,10 @@ output$SONGS_DT <- renderDT({
     
     
   })
-
-
-#observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT, input$TREE_BAR_OPT), {
-
+  
+  
+  #observeEvent(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT, input$TREE_BAR_OPT), {
+  
   output$TREEMAP_PLOT <- renderPlot({
     
     SONGS_LONG_CAT_MOS_DF_TREE <- SONGS_LONG_CAT %>% 
@@ -724,7 +722,7 @@ output$SONGS_DT <- renderDT({
         aes(area = count, 
             fill = value,
             label = value
-            )
+        )
       )+
       geom_treemap()+
       geom_treemap_text(place = "center",
@@ -739,74 +737,74 @@ output$SONGS_DT <- renderDT({
       theme(legend.position = "none")
     
     TREEMAP_PLOT
-
+    
   })
   
-#})
-
-
-
-
-output$CAT_FULL_BAR <- renderPlot({
+  #})
   
-  SONGS_LONG_CAT_MOS_DF_BAR <- SONGS_LONG_CAT %>% 
-    filter(variable == input$PARAM_SELECT_CAT) %>% 
-    select(value) %>% 
-    group_by(value) %>% 
-    mutate(count = n()) %>% 
-    distinct()
   
-  CAT_FULL_BAR <- SONGS_LONG_CAT_MOS_DF_BAR %>% 
-    ggplot(aes(x = reorder(value, count), y = count, fill = value))+
-    geom_col()+
-    scale_fill_hue(#h = c(0, 360) + 15,
-      c = 70,
-      #l = 65,
-      #h.start = 0
-    )+
-    #scale_fill_discrete()+
-    theme(
-      legend.position = "none",
-      axis.title.y = element_blank(),
-      #axis.line = element_line(linetype = "solid"),
-      #panel.grid.major = element_blank(), 
-      panel.grid.minor = element_blank(),
-      #panel.background = element_blank()
+  
+  
+  output$CAT_FULL_BAR <- renderPlot({
+    
+    SONGS_LONG_CAT_MOS_DF_BAR <- SONGS_LONG_CAT %>% 
+      filter(variable == input$PARAM_SELECT_CAT) %>% 
+      select(value) %>% 
+      group_by(value) %>% 
+      mutate(count = n()) %>% 
+      distinct()
+    
+    CAT_FULL_BAR <- SONGS_LONG_CAT_MOS_DF_BAR %>% 
+      ggplot(aes(x = reorder(value, count), y = count, fill = value))+
+      geom_col()+
+      scale_fill_hue(#h = c(0, 360) + 15,
+        c = 70,
+        #l = 65,
+        #h.start = 0
       )+
-    coord_flip()
+      #scale_fill_discrete()+
+      theme(
+        legend.position = "none",
+        axis.title.y = element_blank(),
+        #axis.line = element_line(linetype = "solid"),
+        #panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        #panel.background = element_blank()
+      )+
+      coord_flip()
+    
+    CAT_FULL_BAR
+    
+  })
   
-  CAT_FULL_BAR
-  
-})
-
-output$FREQ_TAB_FULL <- renderDT({
-  
-  FREQ_DF <- SONGS_LONG_CAT_REACT() %>% 
-    distinct() 
-  
-  
-  FREQ_TAB_FULL <- FREQ_DF
-  datatable(FREQ_DF, 
-            rownames = FALSE,
-            class = "display",
-            style = "bootstrap",
-            options = list(paging = FALSE,
-                           searching = FALSE,
-                           info = FALSE,
-                           order = list(list(1, 'desc'))
-            )
-  ) %>% 
-    formatStyle(1:2, fontSize = "80%")
-  
-})
+  output$FREQ_TAB_FULL <- renderDT({
+    
+    FREQ_DF <- SONGS_LONG_CAT_REACT() %>% 
+      distinct() 
+    
+    
+    FREQ_TAB_FULL <- FREQ_DF
+    datatable(FREQ_DF, 
+              rownames = FALSE,
+              class = "display",
+              style = "bootstrap",
+              options = list(paging = FALSE,
+                             searching = FALSE,
+                             info = FALSE,
+                             order = list(list(1, 'desc'))
+              )
+    ) %>% 
+      formatStyle(1:2, fontSize = "80%")
+    
+  })
   
   SONGS_LONG_CAT_REACT <- reactive({
     
     SONGS_LONG_CAT_REACT <- SONGS_LONG_CAT %>% 
-        filter(variable == input$PARAM_SELECT_CAT) %>% 
-        select(value) %>% 
-        group_by(value) %>% 
-        mutate(count = n())
+      filter(variable == input$PARAM_SELECT_CAT) %>% 
+      select(value) %>% 
+      group_by(value) %>% 
+      mutate(count = n())
     
   })
   
@@ -833,6 +831,79 @@ output$FREQ_TAB_FULL <- renderDT({
     RARE_VALUE <- as.character(NegMode2(SONGS_LONG_CAT_REACT()$value))
     
   })
-       
+########################################################################    
+########################  PAGE 4    ########################################    
+########################################################################    
+
+  HIGHLIGHT <- reactive({
+    if (input$PICKER_SELECT_2 == "None") NULL else input$PICKER_SELECT_2
+  })
   
-}
+  SONGS_BUMP <- reactive({
+    
+  SONGS_BUMP <- SONGS %>% 
+    group_by(Round) %>% 
+    mutate(standings = rank(-VOTES_TOTES, ties.method= "random")) %>% 
+    ungroup() %>% 
+    mutate(Round = fct_reorder(str_trunc(Round, 25), added_at)) %>% 
+    select(Picker, Round, added_at, standings, VOTES_TOTES)
+  })
+  
+  output$SONGS_BUMP_PLOT <- renderPlot({
+    
+  
+  SONGS_BUMP_PLOT <- SONGS_BUMP() %>% 
+    ggplot(aes(x = Round, y = standings, color = Picker))+
+    geom_bump(aes(x = Round, y = standings, group = Picker), size = 2, smooth = 4) + 
+    geom_point(size = 10)+
+    scale_y_reverse(breaks = ~round(pretty(.)))+
+    scale_x_discrete(guide = guide_axis(n.dodge = 3))+
+    expand_limits(x = c(0, length(levels(SONGS_BUMP()$Round)) + 1.3))+
+    geom_text(data = SONGS_BUMP() %>% filter(added_at == min(added_at)),
+              aes(x = Round, label = Picker),
+              size = 5,
+              nudge_x = -0.5,
+              fontface = "bold",
+              check_overlap = TRUE
+    )+
+    geom_label(data = SONGS_BUMP() %>% filter(added_at == max(added_at)),
+              aes(x = Round, label = paste0(as.character(standings), "  ", Picker), fill = Picker),
+              color = "white",
+              size = 6,
+              nudge_x = 0.5,
+              fontface = "bold",
+              #check_overlap = TRUE,
+              hjust = 0.1
+    )+
+    geom_text(aes(label = VOTES_TOTES),
+              color = "black",
+              size = 4.3,
+              fontface = "bold",
+              check_overlap = TRUE)+
+    coord_cartesian(clip="off")+
+    theme(legend.position = "none",
+          axis.text.x = element_text(
+            # angle = 20, 
+            # vjust = 1, 
+            # hjust = 1,
+            size = 13,
+            face = "bold"
+          ),
+          axis.text.y=element_blank(),
+          panel.background = element_blank(),
+          panel.grid = element_blank(),
+          axis.title = element_blank(),
+          axis.ticks = element_blank()
+    )+
+    gghighlight(
+      Picker %in% c(input$PICKER_SELECT_2),
+      use_direct_label = FALSE,
+      unhighlighted_params = list(colour = NULL, fill = NULL, alpha = 0.1)
+    )
+  
+  
+  SONGS_BUMP_PLOT
+  })
+  
+  
+    }

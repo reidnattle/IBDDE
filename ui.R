@@ -157,11 +157,13 @@ ui <- page_navbar(
                       
                       conditionalPanel(
                         condition = "input.VOTE_PLOT_OPT == 'Standings'",
-                        plotOutput("STANDINGS_PLOT")
+                        plotOutput("STANDINGS_PLOT", height = 450), 
+                        height = "100%"
                       ),
                       conditionalPanel(
                         condition = "input.VOTE_PLOT_OPT == 'Allocations'",
-                        plotOutput("VOTE_SUM_PLOT"),
+                        plotOutput("VOTE_SUM_PLOT", height = 450), 
+                        height = "100%"
                       )
                     )
                   )
@@ -312,7 +314,7 @@ ui <- page_navbar(
                          
                          layout_column_wrap(
                            width = NULL,
-                           style = css(grid_template_columns = "3fr 2fr"),
+                           style = css(grid_template_columns = "3.3fr 1.7fr"),
                            
                            card(min_height = "630px",
                                 #sidebar = "GLOBAL_SIDEBAR",
@@ -494,7 +496,7 @@ ui <- page_navbar(
                          
                          layout_column_wrap(
                            width = NULL,
-                           style = css(grid_template_columns = "3fr 2fr"),
+                           style = css(grid_template_columns = "3.3fr 1.7fr"),
                            
                            card(
                              min_height = "630px",
@@ -576,59 +578,127 @@ ui <- page_navbar(
   ########################################   PAGE 4 UI   ############################################ 
   ###################################################################################################
   
-  nav_panel("Standings and Votes",
+  nav_panel("Standings",
             page_fluid(
               
               layout_sidebar(
-              sidebar = sidebar(
-                img(src = "30.png", width = "100%"),
-                width = 250,
-                fillable = FALSE,
-                id = "GLOBAL_SIDEBAR",
-                open = "always",
+                sidebar = sidebar(
+                  #img(src = "30.png", width = "100%"),
+                  width = 300,
+                  fillable = FALSE,
+                  id = "GLOBAL_SIDEBAR",
+                  open = "always",
+                  
+                  card( 
+                    #class = c("text-black"),
+                    
+                    card_header(
+                      "Plot Options",
+                      class = c("bg-teal", "text-black", "font-weight-bold"),
+                    ),
+                    
+                    card_body(
+                      
+                      pickerInput("PICKER_SELECT_2",
+                                  label = "Pick Pickers to Highlight",
+                                  choices = PICKER_SELECT_CHOICES_2,
+                                  selected = PICKER_SELECT_CHOICES_2,
+                                  multiple = TRUE,
+                                  #keepAlwaysOpen = TRUE,
+                                  #optionsCount = 12,
+                                  #optionHeight = "30px",
+                                  #showValueAsTags = TRUE
+                                  #bigger = TRUE
+                                  #outline = TRUE,
+                                  #icon = icon("check"),
+                                  #inline = TRUE
+                                  options = pickerOptions(actionsBox = TRUE,
+                                                          #dropupAuto = FALSE,
+                                                          style = c("btn-info"),
+                                                          container = 'body',
+                                                          selectedTextFormat = 'count > 4'
+                                  )
+                      ),
+                      
+                      numericRangeInput(
+                        "STANDINGS_RANGE",
+                        "Zoom to Rounds Range",
+                        min = 1,
+                        max = 13,
+                        value = c(1:13)
+                      )
+                    )
+                  ),
+                  
+                  card(
+                    full_screen = TRUE,
+                    card_body(DTOutput("STANDINGS_TAB"))
+                  )
+                  
+                ),
                 
-                card( 
-                  #class = c("text-black"),
+                card(
+                  full_screen = TRUE,
                   
                   card_header(
-                    "Plot Options",
-                    class = c("bg-teal", "text-black", "font-weight-bold"),
+                    radioGroupButtons(
+                      inputId = "STAND_PLOT_OPT",
+                      choices = c("Standings", "Cummulative Scores"),
+                      individual = TRUE,
+                      size = "sm",
+                      status = "btn-outline"
+                    ),
+                    
+                    conditionalPanel(
+                      condition = "input.STAND_PLOT_OPT == 'Standings'",
+                      popover(
+                      bsicons::bs_icon("robot", class = "ms-auto"), 
+                      "Click on points in the plot to filter the data table in the sidebar.",
+                      title = "about interactivity")
+                     ),
+                    
+                    conditionalPanel(
+                      condition = "input.STAND_PLOT_OPT == 'Cummulative Scores'",
+                      popover(
+                        bsicons::bs_icon("robot", class = "ms-auto"), 
+                        "Click and drag over points in the plot to filter the data table in the sidebar.",
+                        title = "about interactivity")
+                    ),
+                    
+                    conditionalPanel(
+                      condition = "input.STAND_PLOT_OPT == 'Cummulative Scores'",
+                      popover(
+                        bsicons::bs_icon("gear"), 
+                        awesomeRadio(
+                          inputId = "SCORE_Y_OPT",
+                          label = "Configure Y to display:",
+                          selected = "distance from the mean",
+                          choices = c("cumulative scores", "distance from the mean")
+                        ),
+                        title = "plot controls")),
+                    
+                    class = "d-flex align-items-center gap-1"
+                    
                   ),
                   
                   card_body(
+                    conditionalPanel(
+                      
+                      condition = "input.STAND_PLOT_OPT == 'Standings'",
+                      
+                      plotOutput("SONGS_BUMP_PLOT", height = "100%", click = "SANDINGS_PLOT_CLICK")
+                    ),
                     
-                    pickerInput("PICKER_SELECT_2",
-                                label = "Pick Pickers to Highlight",
-                                choices = PICKER_SELECT_CHOICES_2,
-                                selected = PICKER_SELECT_CHOICES_2,
-                                multiple = TRUE,
-                                #keepAlwaysOpen = TRUE,
-                                #optionsCount = 12,
-                                #optionHeight = "30px",
-                                #showValueAsTags = TRUE
-                                #bigger = TRUE
-                                #outline = TRUE,
-                                #icon = icon("check"),
-                                #inline = TRUE
-                                options = pickerOptions(actionsBox = TRUE,
-                                               #dropupAuto = FALSE,
-                                               style = c("btn-info"),
-                                               container = 'body',
-                                               selectedTextFormat = 'count > 4'
-                                )
+                    conditionalPanel(
+                      
+                      condition = "input.STAND_PLOT_OPT == 'Cummulative Scores'",
+                      
+                      plotOutput("SONGS_CUM_PLOT", height = "100%", brush = "SANDINGS_PLOT_BRUSH")
                     )
                   )
-                )
-              ),
-              
-              card(
-                
-                card_body(
-                  plotOutput("SONGS_BUMP_PLOT", height = 600)
+                  
                 )
                 
-              )
-              
               )
             )
             

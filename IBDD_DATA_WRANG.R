@@ -117,7 +117,32 @@ SONGS <- SUBMISSIONS %>%
   relocate(Name_SUB, .after = `Artist(s)`) %>% 
   rename("Picker" = Name_SUB,
          "Round" = Name_ROU,
-         "Added" = Created_SUB) 
+         "Added" = Created_SUB) %>% 
+  rename("track popularity" = track.popularity) %>%
+  rename("tempo (BPM)" = tempo) %>%
+  rename("loudness (dB)" = loudness) %>%
+  mutate(key_mode = str_remove(key_mode, "or")) %>%
+  mutate(Picker = Picker_Alias) %>%
+  mutate(round_abbr = str_replace_all(str_trunc(Round, width = 15), "—", "-")) %>%
+  mutate("duration (mins)" = round(track.duration_ms / 1000 / 60, 3)) %>%
+  select(-c(key, mode)) %>%
+  rename("mode" = mode_name,
+         "key" = key_name,
+         "key + mode" = key_mode) %>%
+  group_by(Picker) %>%
+  mutate(VOTES_TOTES = cumsum(Points)) %>%
+  ungroup() %>%
+  mutate(added_at = ymd(str_sub(added_at, end = -11))) %>% 
+  group_by(Round) %>% 
+  mutate(DIST_MEAN = VOTES_TOTES-mean(VOTES_TOTES)) %>% 
+  mutate(standings = rank(-VOTES_TOTES, ties.method= "min")) %>% 
+  ungroup() %>% 
+  mutate(Round_2 = Round) %>% 
+  mutate(Round = fct_reorder(str_trunc(Round, 25), added_at)) %>% 
+  group_by(Round) %>% 
+  mutate(ROUND_NUM = type.convert(Round, as.is = FALSE)) %>% 
+  ungroup() %>% 
+  mutate(ROUND_NUM = as.numeric(ROUND_NUM)) 
 
 #write_rds(VOTES, "DATA/VOTES12.rds")
 #write_rds(SONGS, "DATA/SONGS12.rds")

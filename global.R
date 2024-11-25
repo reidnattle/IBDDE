@@ -18,32 +18,13 @@ library(ggbump)
 library(gghighlight)
 library(ggrepel)
 library(showtext)
+library(Cairo)
 
 options(shiny.useragg = TRUE)
 thematic_shiny(font = "auto")
 #rsconnect::writeManifest()
 
-SONGS <- read_rds("DATA/SONGS12.rds") %>%
-  rename("track popularity" = track.popularity) %>%
-  rename("tempo (BPM)" = tempo) %>%
-  rename("loudness (dB)" = loudness) %>%
-  mutate(key_mode = str_remove(key_mode, "or")) %>%
-  mutate(Picker = Picker_Alias) %>%
-  mutate(round_abbr = str_replace_all(str_trunc(Round, width = 15), "—", "-")) %>%
-  mutate("duration (mins)" = round(track.duration_ms / 1000 / 60, 3)) %>%
-  select(-c(key, mode)) %>%
-  rename("mode" = mode_name,
-         "key" = key_name,
-         "key + mode" = key_mode) %>%
-  group_by(Picker) %>%
-  mutate(VOTES_TOTES = cumsum(Points)) %>%
-  ungroup() %>%
-  mutate(added_at = ymd(str_sub(added_at, end = -11))) %>% 
-  group_by(Round) %>% 
-  mutate(DIST_MEAN = VOTES_TOTES-mean(VOTES_TOTES)) %>% 
-  ungroup()
-
-
+SONGS <- read_rds("DATA/SONGS12.rds") 
 VOTES <- read_rds("DATA/VOTES12.rds")
 
 SONGS_LONG <- SONGS %>%

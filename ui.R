@@ -622,7 +622,7 @@ ui <- page_navbar(
                       
                       numericRangeInput(
                         "STANDINGS_RANGE",
-                        "Zoom to Rounds Range",
+                        "Zoom to Rounds",
                         min = 1,
                         max = 13,
                         value = c(1:13)
@@ -682,18 +682,28 @@ ui <- page_navbar(
                   ),
                   
                   card_body(
+                    height = 625,
                     conditionalPanel(
                       
                       condition = "input.STAND_PLOT_OPT == 'Standings'",
                       
-                      plotOutput("SONGS_BUMP_PLOT", height = "100%", click = "SANDINGS_PLOT_CLICK")
+                      plotOutput(
+                        "SONGS_BUMP_PLOT", 
+                        height = 650, 
+                        click = "SANDINGS_PLOT_CLICK",
+                        # dblclick = "BUMP_DCLICK",
+                        # brush = brushOpts("BUMP_BRUSH",
+                        #                   resetOnNew = TRUE)
+                      )
                     ),
                     
                     conditionalPanel(
                       
                       condition = "input.STAND_PLOT_OPT == 'Cummulative Scores'",
                       
-                      plotOutput("SONGS_CUM_PLOT", height = "100%", brush = "SANDINGS_PLOT_BRUSH")
+                      plotOutput("SONGS_CUM_PLOT", 
+                                 height = 650, 
+                                 brush = "SANDINGS_PLOT_BRUSH")
                     )
                   )
                   

@@ -906,12 +906,12 @@ server <- function(input, output, session) {
     
     STANDINGS_TAB <- datatable({if ( sum(STANDINGS_TAB_PRE()$selected_) > 0) {
       STANDINGS_TAB_PRE() %>% 
-        filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) %>%
+        #filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) %>%
         filter(selected_ == TRUE) %>% 
         select(Title, Points, Picker, Round, standings, VOTES_TOTES, DIST_MEAN)
 
     } else STANDINGS_TAB_PRE() %>% 
-        filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) %>%
+        #filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) %>%
         select(Title, Points, Picker, Round, standings, VOTES_TOTES, DIST_MEAN)},
     
     style = "bootstrap",
@@ -949,49 +949,10 @@ server <- function(input, output, session) {
     
   }) 
   
-  HIGHLIGHT <- reactive({
-    if (input$PICKER_SELECT_2 == "None") NULL else input$PICKER_SELECT_2
-  }) %>% 
-    bindCache(input$PICKER_SELECT_2)
-
-  
-  # LABELS_BUMP_CUM <- reactive({
-  #   
-  #   if()
-  #   
-  #   LABELS_BUMP_CUM <- list(geom_text_repel(
-  #     
-  #     #data = ~head(.x, 1), 
-  #     data = SONGS %>%
-  #       filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) %>%
-  #       filter(added_at == min(added_at)),
-  #     aes(
-  #       x = ROUND_NUM, 
-  #       label = Picker),
-  #     size = 5,
-  #     direction = "y",
-  #     nudge_x = -0.5,
-  #     fontface = "bold"
-  #   ),
-  #     geom_label_repel(
-  #       # data = ~tail(.x, 1),
-  #       data = SONGS %>%
-  #         filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) %>%
-  #         filter(added_at == max(added_at)),
-  #       aes(x = ROUND_NUM, 
-  #           label = paste0(standings, " ", Picker),
-  #           fill = Picker),
-  #       color = DARK_MODE_TEXT_SWITCH(),
-  #       size = 5,
-  #       direction = "y",
-  #       segment.colour = NA,
-  #       nudge_x = 0.5,
-  #       fontface = "bold",
-  #       #check_overlap = TRUE,
-  #       hjust = 0.1
-  #     ))
-  #   
-  # })
+  # HIGHLIGHT <- reactive({
+  #   if (input$PICKER_SELECT_2 == "None") NULL else input$PICKER_SELECT_2
+  # }) %>% 
+  #   bindCache(input$PICKER_SELECT_2)
   
   output$SONGS_BUMP_PLOT <- renderPlot({
   
@@ -1001,37 +962,37 @@ server <- function(input, output, session) {
              Round,
              Picker,
              VOTES_TOTES,
-             added_at) %>% 
-      filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2])
+             added_at) #%>% 
+      #filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2])
     
     SONGS_BUMP_PLOT <- SONGS_BUMP_PLOT_DF %>% 
       ggplot(aes(x = ROUND_NUM, y = standings, color = Picker))+
       geom_bump(aes(group = Picker), size = 2, smooth = 5) + 
       geom_point(size = 8.5)+
-      scale_y_reverse(n.breaks = 11)+
-      scale_x_continuous(guide = guide_axis(n.dodge = 3), 
-                         limits = c(input$STANDINGS_RANGE[1] - 0.5, input$STANDINGS_RANGE[2] + 0.8), 
-                         breaks = c(input$STANDINGS_RANGE[1]:input$STANDINGS_RANGE[2]), 
-                         labels = unique(SONGS_BUMP_PLOT_DF$Round)
-                         )+
+      gghighlight(
+        Picker %in% c(input$PICKER_SELECT_2),
+        use_direct_label = FALSE,
+        unhighlighted_params = list(colour = NULL, fill = NULL, alpha = 0.1)
+      )+
       geom_text_repel(
         
         data = ~filter(.x, added_at == min(added_at)), 
         aes(
-          x = min(ROUND_NUM),
+          x = ROUND_NUM,
           label = Picker),
         size = 5,
         direction = "y",
         nudge_x = -0.5,
         fontface = "bold"
       )+
-      geom_label_repel(
-        data = ~filter(.x, added_at == max(added_at)), 
-        aes(x = ROUND_NUM, 
+      geom_text_repel(
+        data = ~filter(.x, added_at == max(added_at)),
+        aes(x = ROUND_NUM,
             label = paste0(standings, " ", Picker),
-            fill = Picker),
-        color = DARK_MODE_TEXT_SWITCH(),
-        size = 5,
+            #fill = Picker
+            ),
+        #color = DARK_MODE_TEXT_SWITCH(),
+        size = 6,
         direction = "y",
         segment.colour = NA,
         nudge_x = 0.5,
@@ -1043,6 +1004,11 @@ server <- function(input, output, session) {
                 size = 3.5,
                 fontface = "bold",
                 check_overlap = TRUE)+
+      scale_y_reverse(n.breaks = 11)+
+      scale_x_continuous(guide = guide_axis(n.dodge = 3), 
+                         limits = c(0.5, 13.8), 
+                         breaks = c(1:13), 
+                         labels = unique(SONGS_BUMP_PLOT_DF$Round))+
       coord_cartesian(clip="off")+
       labs(x = paste0("Round (", "time \U2192)"))+
       theme(legend.position = "none",
@@ -1056,12 +1022,7 @@ server <- function(input, output, session) {
             axis.title.y = element_blank(),
             axis.title.x = element_text(size = 16, face = "bold"),
             axis.ticks = element_blank()
-      ) +
-      gghighlight(
-        Picker %in% c(input$PICKER_SELECT_2),
-        use_direct_label = FALSE,
-        unhighlighted_params = list(colour = NULL, fill = NULL, alpha = 0.1)
-      )
+      ) 
   
   
     SONGS_BUMP_PLOT
@@ -1070,10 +1031,8 @@ server <- function(input, output, session) {
     bindCache(
       #SONGS_BUMP_PLOT_DF(),
       input$PICKER_SELECT_2,
-      input$STANDINGS_RANGE[1],
-      input$STANDINGS_RANGE[2],
-      session$clientData$output_SONGS_BUMP_PLOT_bg,
-      DARK_MODE_TEXT_SWITCH()
+
+     session$clientData$output_SONGS_BUMP_PLOT_bg
     )
   
   
@@ -1086,30 +1045,36 @@ server <- function(input, output, session) {
              Picker,
              VOTES_TOTES,
              added_at,
-             DIST_MEAN) %>% 
-      filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) 
+             DIST_MEAN) #%>% 
+      #filter(ROUND_NUM >= input$STANDINGS_RANGE[1] & ROUND_NUM <= input$STANDINGS_RANGE[2]) 
 
     SONGS_CUM_PLOT <- SONGS_CUM_PLOT_PRE %>% 
       ggplot(aes(x = ROUND_NUM, y = if(input$SCORE_Y_OPT == "cumulative scores") VOTES_TOTES else DIST_MEAN, color = Picker))+
       geom_line(aes(group = Picker), linewidth = 0.8) + 
       geom_point(size = 2.5)+
-      scale_x_continuous(guide = guide_axis(n.dodge = 3), 
-                         limits = c(input$STANDINGS_RANGE[1] - 0.5, input$STANDINGS_RANGE[2] + 0.8), 
-                         breaks = c(input$STANDINGS_RANGE[1]:input$STANDINGS_RANGE[2]), 
-                         labels = unique(SONGS_CUM_PLOT_PRE$Round))+
-      geom_label_repel(
+      gghighlight(
+        Picker %in% c(input$PICKER_SELECT_2),
+        use_direct_label = FALSE,
+        unhighlighted_params = list(colour = NULL, fill = NULL, alpha = 0.1)
+      )+
+      geom_text_repel(
         data = ~filter(.x, added_at == max(added_at)), 
         aes(x = ROUND_NUM, 
-            label = paste0(standings, " ", Picker),
-            fill = Picker),
-        color = DARK_MODE_TEXT_SWITCH(),
-        size = 5,
+            label = paste0(standings, " ", Picker)
+            #fill = Picker
+            ),
+        #color = DARK_MODE_TEXT_SWITCH(),
+        size = 6,
         direction = "y",
         segment.colour = NA,
         nudge_x = 0.5,
         fontface = "bold",
         hjust = 0.1
       )+
+      scale_x_continuous(guide = guide_axis(n.dodge = 3), 
+                           limits = c(0.5, 13.8), 
+                           breaks = c(1:13), 
+                           labels = unique(SONGS_CUM_PLOT_PRE$Round))+
       coord_cartesian(clip="off")+
       ylab(if(input$SCORE_Y_OPT == "cumulative scores") "cumulative scores" else "distance from mean cummulative score") +
       labs(x = paste0("Round (", "time \U2192)"))+
@@ -1123,12 +1088,8 @@ server <- function(input, output, session) {
             axis.title.x = element_text(size = 16, face = "bold"),
             axis.title.y = element_text(size = 16,
                                         face = "bold"),
-      ) +
-      gghighlight(
-        Picker %in% c(input$PICKER_SELECT_2),
-        use_direct_label = FALSE,
-        unhighlighted_params = list(colour = NULL, fill = NULL, alpha = 0.1)
-      )
+      ) 
+
     
     
     SONGS_CUM_PLOT
@@ -1137,10 +1098,165 @@ server <- function(input, output, session) {
       #SONGS_BUMP_PLOT_DF(),
       input$PICKER_SELECT_2,
       input$SCORE_Y_OPT,
-      input$STANDINGS_RANGE[1],
-      input$STANDINGS_RANGE[2],
+      #input$STANDINGS_RANGE[1],
+      #input$STANDINGS_RANGE[2],
       session$clientData$output_SONGS_CUM_PLOT_bg,
       DARK_MODE_TEXT_SWITCH()
     )
+  
+  ###################################################################################################
+  ########################################   PAGE 5 UI   ############################################ 
+  ###################################################################################################
+  
+  output$VOTES_PLOT <- renderPlot({
+    
+    SONGS_DT_test <- SONGS %>% 
+      select(1, Round, Picker, TRACK_ID) 
+    
+    VOTES_SONGS_test <- SONGS_DT_test %>% 
+      right_join(VOTES %>% select(`Points Assigned`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID)) %>% 
+      #filter(Round == "Wholesome Rap") %>% 
+      select(-c(TRACK_ID, Title, Round)) %>% 
+      group_by(Picker, Voter_Alias) %>% 
+      mutate(TOTAL = sum(`Points Assigned`)) %>% 
+      ungroup() %>% 
+      select(-`Points Assigned`) %>%
+      filter(TOTAL != 0) %>% 
+      distinct()
+    
+    
+    # faceted grouped bar
+    
+    BAR1_DF <- VOTES_SONGS_test %>% 
+      filter(Picker == "REI") 
+    
+    yrng <- range(BAR1_DF$TOTAL)
+    
+    BAR1 <- BAR1_DF %>% 
+      arrange(desc(Voter_Alias)) %>% 
+      ggplot(aes(y = TOTAL, x = reorder(Voter_Alias, TOTAL), fill = Voter_Alias))+
+      geom_col()+
+      #labs(caption = paste("n =", sum(BAR1_DF$TOTAL)))+
+      annotate("text", x = 1.2, y = yrng[2], 
+               label = paste("n =", sum(BAR1_DF$TOTAL)), 
+               size = 3.5, 
+               fontface = 'bold',
+               hjust = 1, vjust = 0)+
+      #xlab("Points Allotted")+
+      scale_fill_paletteer_d("miscpalettes::pastel")+
+      coord_flip()+
+      theme(
+        #axis.title.y = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text = element_text(face = "bold"),
+        axis.line = element_line(linetype = "solid")
+      )
+    
+    BAR2_DF <-  VOTES_SONGS_test %>% 
+      filter(Voter_Alias == "REI")
+    
+    yrng2 <- range(BAR1_DF$TOTAL)
+    
+    BAR2 <- BAR2_DF %>% 
+      arrange(desc(Picker)) %>% 
+      ggplot(aes(y = TOTAL, x = reorder(Picker, TOTAL), fill = Picker))+
+      geom_col()+
+      #labs(caption = paste("n =", sum(BAR2_DF$TOTAL)))+
+      annotate("text", x = 1.2, y = yrng2[2], 
+               label = paste("n =", sum(BAR2_DF$TOTAL)), 
+               size = 3.5, 
+               fontface = 'bold',
+               hjust = 1, vjust = 0)+
+      #geom_text(stat = "count")+
+      ylab("Points")+
+      scale_fill_paletteer_d("miscpalettes::pastel")+
+      coord_flip()+
+      theme(
+        axis.title.y = element_blank(),
+        axis.title.x = (element_text(face = "bold", size = 10)),
+        axis.text = element_text(face = "bold"),
+        axis.line = element_line(linetype = "solid")
+      )
+    
+    
+    # faceted waffles:
+    
+    WAFFLE1_DF <- VOTES_SONGS_test %>% 
+      arrange(desc(Voter_Alias)) 
+    
+    WAFFLE1 <- WAFFLE1_DF %>% 
+      ggplot(aes(values = TOTAL, fill = Voter_Alias))+
+      geom_waffle(n_rows = 5, 
+                  color = "black", 
+                  flip = TRUE, 
+                  na.rm=TRUE)+
+      geom_rect(
+        data = subset(WAFFLE1_DF, Picker != "REI"),
+        #aes(fill = Picker),
+        xmin = -Inf,
+        xmax = Inf,
+        ymin = 0, 
+        ymax = 32,
+        alpha = 0.1
+      )+
+      ylab("Points Received \n(from = color)")+
+      scale_fill_paletteer_d("miscpalettes::pastel")+
+      #facet_grid("Points Received \n(from = color)"~Picker, switch = "both")+
+      facet_wrap(vars(Picker), nrow = 1)+
+      theme(strip.text.x = element_blank(),
+            #strip.background.x = element_blank(),
+            axis.text = element_blank(),
+            axis.title.y = (element_text(face = "bold", size = 12)),
+            axis.ticks = element_blank(),
+            strip.text = element_text(face = "bold")) 
+    
+    
+    WAFFLE2 <- VOTES_SONGS_test %>% 
+      arrange(desc(Picker)) %>% 
+      ggplot(aes(values = TOTAL))+
+      geom_waffle(aes(fill = Picker),
+                  n_rows = 5, 
+                  color = "black", 
+                  flip = TRUE, 
+                  na.rm=TRUE)+
+      geom_rect(
+        data = subset(WAFFLE1_DF, Voter_Alias != "REI"),
+        #aes(fill = Picker),
+        xmin = -Inf,
+        xmax = Inf,
+        ymin = 0, 
+        ymax = 28,
+        alpha = 0.1
+      )+
+      labs(x = NULL)+
+      ylim(NA, 32)+
+      ylab("Points Allotted \n(to = color)")+
+      xlab("Players")+
+      scale_fill_paletteer_d("miscpalettes::pastel")+
+      #facet_grid("Points Allotted \n(to = color)"~Voter_Alias, switch = "both")+
+      facet_wrap(vars(Voter_Alias), strip.position = 'top', nrow = 1)+
+      theme(
+        strip.background.x = element_blank(),
+        axis.text = element_blank(),,
+        axis.title.x = (element_text(face = "bold", size = 10)),
+        axis.title.y = (element_text(face = "bold", size = 12)),
+        axis.ticks = element_blank(),
+        strip.text.y = element_text(face = "bold"),
+        strip.text= element_text(face = "bold", size = 10)
+      )
+    
+    # all together now
+    
+    VOTES_PLOT <- WAFFLE1 + BAR1 + WAFFLE2 + BAR2 +
+      plot_layout(widths = c(6, 1)) & 
+      theme(
+        legend.position = 'none',
+        panel.grid = element_blank(),
+        panel.background = element_blank()
+      )  
+    VOTES_PLOT
+    
+  })
   
     }

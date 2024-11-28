@@ -577,7 +577,7 @@ ui <- page_navbar(
   ###################################################################################################
   ########################################   PAGE 4 UI   ############################################ 
   ###################################################################################################
-  
+  nav_menu("Standings and Votes",
   nav_panel("Standings",
             page_fluid(
               
@@ -593,14 +593,14 @@ ui <- page_navbar(
                     #class = c("text-black"),
                     
                     card_header(
-                      "Plot Options",
+                      "Filter Outputs",
                       class = c("bg-teal", "text-black", "font-weight-bold"),
                     ),
                     
                     card_body(
                       
                       pickerInput("PICKER_SELECT_2",
-                                  label = "Pick Pickers to Highlight",
+                                  label = "Pick Pickers",
                                   choices = PICKER_SELECT_CHOICES_2,
                                   selected = PICKER_SELECT_CHOICES_2,
                                   multiple = TRUE,
@@ -620,19 +620,19 @@ ui <- page_navbar(
                                   )
                       ),
                       
-                      numericRangeInput(
-                        "STANDINGS_RANGE",
-                        "Zoom to Rounds",
-                        min = 1,
-                        max = 13,
-                        value = c(1:13)
-                      )
+                      # numericRangeInput(
+                      #   "STANDINGS_RANGE",
+                      #   "Zoom to Rounds",
+                      #   min = 1,
+                      #   max = 13,
+                      #   value = c(1:13)
+                      # )
                     )
                   ),
                   
                   card(
                     full_screen = TRUE,
-                    card_body(DTOutput("STANDINGS_TAB"))
+                    card_body(DTOutput("STANDINGS_TAB", height = "100%"))
                   )
                   
                 ),
@@ -682,14 +682,14 @@ ui <- page_navbar(
                   ),
                   
                   card_body(
-                    height = 625,
+                    #height = 625,
                     conditionalPanel(
                       
                       condition = "input.STAND_PLOT_OPT == 'Standings'",
                       
                       plotOutput(
                         "SONGS_BUMP_PLOT", 
-                        height = 650, 
+                        height = 550, 
                         click = "SANDINGS_PLOT_CLICK",
                         # dblclick = "BUMP_DCLICK",
                         # brush = brushOpts("BUMP_BRUSH",
@@ -702,7 +702,7 @@ ui <- page_navbar(
                       condition = "input.STAND_PLOT_OPT == 'Cummulative Scores'",
                       
                       plotOutput("SONGS_CUM_PLOT", 
-                                 height = 650, 
+                                 height = 550, 
                                  brush = "SANDINGS_PLOT_BRUSH")
                     )
                   )
@@ -712,6 +712,67 @@ ui <- page_navbar(
               )
             )
             
+
+  ),
+  
+  ###################################################################################################
+  ########################################   PAGE 5 UI   ############################################ 
+  ###################################################################################################
+  
+  nav_panel(
+    "Votes",
+    page_fluid(
+      layout_sidebar(
+        sidebar = sidebar(
+          #img(src = "30.png", width = "100%"),
+          width = 300,
+          fillable = FALSE,
+          id = "GLOBAL_SIDEBAR",
+          open = "always",
+          card( 
+            #class = c("text-black"),
+            
+            card_header(
+              "Filter & Highlight Plots",
+              class = c("bg-teal", "text-black", "font-weight-bold"),
+            ),
+            
+            card_body(
+              
+              pickerInput("ROUND_SELECT",
+                          "Pick a Round",
+                          choices = ROUND_SELECT_CHOICES,
+                          selected = "All Rounds",
+                          options = list(actionsBox = TRUE,
+                                         dropupAuto = FALSE,
+                                         style = c("btn-info"),
+                                         container = 'body'
+                                         
+                                         #style = "btn-sm"
+                          )
+              ),
+              pickerInput("PICKER_SELECT",
+                          "Pick a Picker",
+                          choices = PICKER_SELECT_CHOICES,
+                          selected = "All Pickers",
+                          options = list(actionsBox = TRUE,
+                                         dropupAuto = FALSE,
+                                         style = "btn-info",
+                                         container = 'body'
+                                         
+                                         #style = "btn-sm"
+                          )
+              )))
+          
+        ),
+        card(card_body(plotOutput("VOTES_PLOT", height = 625),
+                       class = "p-0"
+        ),
+        full_screen = TRUE
+        )
+      )
+    )
+  )
   ),
   
   nav_spacer(),
@@ -719,5 +780,5 @@ ui <- page_navbar(
               #style = "color: #002f6c; font-weight: bold;"
   )),
   nav_item(link_git),
-  nav_item(input_dark_mode(id = "DARK_MODE", mode = "dark")), 
+  nav_item(input_dark_mode(id = "DARK_MODE", mode = "light")), 
 )

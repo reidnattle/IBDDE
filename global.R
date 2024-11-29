@@ -58,6 +58,18 @@ SONGS_LONG_CAT <- SONGS %>%
     names_to = "variable"
   )
 
+VOTES_SONGS <- SONGS %>% 
+  select(1, Round, Picker, TRACK_ID) %>% 
+  right_join(VOTES %>% select(`Points Assigned`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID)) %>% 
+  #filter(Round == "Wholesome Rap") %>% 
+  select(-c(TRACK_ID, Title, Round)) %>% 
+  group_by(Picker, Voter_Alias) %>% 
+  mutate(TOTAL = sum(`Points Assigned`)) %>% 
+  ungroup() %>% 
+  select(-`Points Assigned`) %>%
+  filter(TOTAL != 0) %>% 
+  distinct()%>% 
+  arrange(desc(Voter_Alias)) 
 
 ROUND_SELECT_CHOICES <- SONGS %>%
   select(Round) %>%

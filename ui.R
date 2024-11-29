@@ -722,57 +722,32 @@ ui <- page_navbar(
   nav_panel(
     "Votes",
     page_fluid(
-      layout_sidebar(
-        sidebar = sidebar(
-          #img(src = "30.png", width = "100%"),
-          width = 300,
-          fillable = FALSE,
-          id = "GLOBAL_SIDEBAR",
-          open = "always",
-          card( 
-            #class = c("text-black"),
-            
-            card_header(
-              "Filter & Highlight Plots",
-              class = c("bg-teal", "text-black", "font-weight-bold"),
-            ),
-            
-            card_body(
-              
-              pickerInput("ROUND_SELECT",
-                          "Pick a Round",
-                          choices = ROUND_SELECT_CHOICES,
-                          selected = "All Rounds",
-                          options = list(actionsBox = TRUE,
-                                         dropupAuto = FALSE,
-                                         style = c("btn-info"),
-                                         container = 'body'
-                                         
-                                         #style = "btn-sm"
-                          )
-              ),
-              pickerInput("PICKER_SELECT",
-                          "Pick a Picker",
-                          choices = PICKER_SELECT_CHOICES,
-                          selected = "All Pickers",
-                          options = list(actionsBox = TRUE,
-                                         dropupAuto = FALSE,
-                                         style = "btn-info",
-                                         container = 'body'
-                                         
-                                         #style = "btn-sm"
-                          )
-              )))
+
+        card(
           
-        ),
-        card(card_body(plotOutput("VOTES_PLOT", height = 625),
+          card_header(
+                    pickerInput("PICKER_SELECT_VOTE",
+                                "Pick a Player",
+                                choices = PICKER_SELECT_CHOICES,
+                                selected = "All Pickers",
+                                options = list(actionsBox = TRUE,
+                                               dropupAuto = FALSE,
+                                               style = "btn-info",
+                                               container = 'body'
+
+                                               #style = "btn-sm"
+                                )
+                    )
+          ),
+          
+          card_body(plotOutput("VOTES_PLOT", height = 625),
                        class = "p-0"
         ),
-        full_screen = TRUE
+        #full_screen = TRUE
         )
       )
     )
-  )
+  
   ),
   
   nav_spacer(),

@@ -14,9 +14,9 @@ ui <- page_navbar(
   
   theme = bs_add_variables(
     bs_theme(
-      base_font = bslib::font_google("News Cycle"),
-      heading_font = bslib::font_google("News Cycle"),
-      preset = "journal",
+      #base_font = bslib::font_google("News Cycle"),
+      #heading_font = bslib::font_google("News Cycle"),
+      preset = "zephyr",
       info = "#008cba"
       #008cba
       #info = "#5A4FCF"
@@ -722,29 +722,38 @@ ui <- page_navbar(
   nav_panel(
     "Votes",
     page_fluid(
-
-        card(
-          
-          card_header(
-                    pickerInput("PICKER_SELECT_VOTE",
-                                "Pick a Player",
-                                choices = PICKER_SELECT_CHOICES,
-                                selected = "All Pickers",
-                                options = list(actionsBox = TRUE,
-                                               dropupAuto = FALSE,
-                                               style = "btn-info",
-                                               container = 'body'
-
-                                               #style = "btn-sm"
-                                )
-                    )
-          ),
-          
-          card_body(plotOutput("VOTES_PLOT", height = 625),
-                       class = "p-0"
-        ),
-        #full_screen = TRUE
-        )
+        
+      "BRB"
+      
+        #   layout_sidebar(
+        #     
+        #     sidebar = sidebar(
+        #       
+        #       pickerInput("PICKER_SELECT_VOTE",
+        #                   "Pick a Player",
+        #                   choices = PICKER_SELECT_CHOICES,
+        #                   selected = "All Pickers",
+        #                   options = list(actionsBox = TRUE,
+        #                                  dropupAuto = FALSE,
+        #                                  style = "btn-info",
+        #                                  container = 'body'
+        #                                  
+        #                                  #style = "btn-sm"
+        #                   )
+        #       )
+        #     ),
+        #     card(
+        #     
+        #   # card_header(
+        #   #           
+        #   # ),
+        #   
+        #   card_body(plotOutput("VOTES_PLOT", height = 625),
+        #                class = "p-0"
+        # ),
+        # #full_screen = TRUE
+        # )
+        # )
       )
     )
   

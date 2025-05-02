@@ -1114,18 +1114,16 @@ server <- function(input, output, session) {
     VOTES_FRO_DF <- VOTES_SONGS %>% 
       filter(if(input$PICKER_SELECT_VOTE != "All Pickers") Picker == input$PICKER_SELECT_VOTE else TRUE) 
     
-      #filter(Picker == input$PICKER_SELECT_VOTE) 
-    
-  })
+  }) %>% 
+    bindCache(input$PICKER_SELECT_VOTE)
   
   VOTES_TO_DF <- reactive({
     
     VOTES_TO_DF <- VOTES_SONGS %>% 
       filter(if(input$PICKER_SELECT_VOTE != "All Pickers") Voter_Alias == input$PICKER_SELECT_VOTE else TRUE) 
-      
-      #filter(Voter_Alias == input$PICKER_SELECT_VOTE) 
     
-  })
+  })%>% 
+    bindCache(input$PICKER_SELECT_VOTE)
   
   
   HIGHLIGHT_VOTE_1 <- reactive({
@@ -1141,7 +1139,8 @@ server <- function(input, output, session) {
       alpha = 0.1
     )
     } else NULL
-  })
+  })%>% 
+    bindCache(input$PICKER_SELECT_VOTE)
 
   HIGHLIGHT_VOTE_2 <- reactive({
 
@@ -1156,7 +1155,8 @@ server <- function(input, output, session) {
         alpha = 0.1
       )
     } else NULL
-  })
+  })%>% 
+    bindCache(input$PICKER_SELECT_VOTE)
   
   
   output$VOTES_PLOT <- renderPlot({
@@ -1279,8 +1279,8 @@ server <- function(input, output, session) {
     
     # all together now
     
-    VOTES_PLOT <- free(WAFFLE1) + free(BAR1) + free(WAFFLE2) + free(BAR2) +
-      plot_layout(widths = c(3, 1)) & 
+    VOTES_PLOT <- WAFFLE1 + BAR1 + WAFFLE2 + BAR2 +
+      plot_layout(widths = c(5, 1)) & 
       theme(
         legend.position = 'none',
         panel.grid = element_blank(),
@@ -1288,6 +1288,13 @@ server <- function(input, output, session) {
       )  
     VOTES_PLOT
     
-  })
+  }) %>% 
+    bindCache(input$PICKER_SELECT_VOTE,
+              VOTES_TO_DF(),
+              VOTES_FRO_DF(),
+              HIGHLIGHT_VOTE_1(),
+              HIGHLIGHT_VOTE_2(),
+              session$clientData$output_VOTES_PLOT_bg
+              )
   
 }

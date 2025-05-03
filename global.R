@@ -22,6 +22,8 @@ library(ggtext)
 library(showtext)
 library(chorddiag)
 library(Cairo)
+library(RColorBrewer)
+
 
 options(shiny.useragg = TRUE)
 thematic_shiny(font = "auto")
@@ -104,6 +106,16 @@ NegMode2 <- function(x) {
   ux <- unique(x)
   paste(ux[which(tabulate(match(x, ux)) == min(tabulate(match(x, ux))))], collapse = ", ")
 }
+
+PickerColors <- paletteer_d("rcartocolor::Vivid")
+names(PickerColors) <- levels(SONGS$Picker)
+PickerColScale <- scale_color_manual(name = "Picker", values = PickerColors)
+PickerFillScale <- scale_fill_manual(name = "Picker", values = PickerColors)
+
+RoundColors <- paletteer_d("ggsci::springfield_simpsons")[-c(11:13)]
+names(RoundColors) <- levels(SONGS$round_abbr)
+RoundColScale <- scale_color_manual(name = "round_abbr", values = RoundColors)
+RoundFillScale <- scale_fill_manual(name = "round_abbr", values = RoundColors)
 
 gg_color_hue <- function(n) {
   hues = seq(15, 375, length = n + 1)

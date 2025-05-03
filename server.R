@@ -111,7 +111,8 @@ server <- function(input, output, session) {
       ylab("Points received") +
       xlab("Picker (votes receiver)")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
-      coord_flip() 
+      coord_flip() +
+      PickerFillScale
     
     STANDINGS_PLOT
     
@@ -388,6 +389,21 @@ server <- function(input, output, session) {
     
   })
   
+  FILL_REACTIVE <- reactive({
+    
+    if(input$GROUP_SELECT == "Round") {
+      RoundFillScale
+    } else
+      PickerFillScale
+  })
+  
+  COLORS_REACTIVE <- reactive({
+    
+    if(input$GROUP_SELECT == "Round") {
+      RoundColScale
+    } else
+      PickerColScale
+  })
   
   output$BOXPLOTS <- renderPlot({
     
@@ -415,7 +431,8 @@ server <- function(input, output, session) {
       )+
       ylab(input$PARAM_SELECT)+
       xlab(input$GROUP_SELECT)+
-      PLOT_TITLE_REACTIVE()
+      PLOT_TITLE_REACTIVE()+
+      FILL_REACTIVE()
     
   })
   
@@ -446,7 +463,8 @@ server <- function(input, output, session) {
       scale_x_continuous(expand = c(0, 0))+
       scale_y_discrete(expand = expand_scale(mult = c(0.01, 0.15))) +
       xlab(input$PARAM_SELECT)+
-      PLOT_TITLE_REACTIVE()
+      PLOT_TITLE_REACTIVE()+
+      FILL_REACTIVE()
     
   })
   
@@ -1022,7 +1040,8 @@ server <- function(input, output, session) {
             axis.title.y = element_blank(),
             axis.title.x = element_text(size = 16, face = "bold"),
             axis.ticks = element_blank()
-      ) 
+      ) +
+      PickerColScale
     
     
     SONGS_BUMP_PLOT
@@ -1088,7 +1107,8 @@ server <- function(input, output, session) {
             axis.title.x = element_text(size = 16, face = "bold"),
             axis.title.y = element_text(size = 16,
                                         face = "bold"),
-      ) 
+      ) +
+      COLORS_REACTIVE()
     
     
     
@@ -1142,7 +1162,7 @@ server <- function(input, output, session) {
     VOTES_PLOT <- chorddiag(VOTES_MATRIX(),
                             tooltipGroupConnector = "\U25C0",
                             palette = "Set3",
-                            groupColors = gg_color_hue(12),
+                            groupColors = PickerColors,
                             groupnamePadding = 10)
     
     return(VOTES_PLOT)

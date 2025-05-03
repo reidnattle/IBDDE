@@ -18,10 +18,9 @@ library(ggbump)
 library(gghighlight)
 library(ggrepel)
 library(ggalluvial)
-library(patchwork)
-library(waffle)   
 library(ggtext)
 library(showtext)
+library(chorddiag)
 library(Cairo)
 
 options(shiny.useragg = TRUE)
@@ -60,21 +59,13 @@ SONGS_LONG_CAT <- SONGS %>%
 
 VOTES_SONGS <- SONGS %>% 
   select(1, Round, Picker, TRACK_ID) %>% 
-  right_join(VOTES %>% select(`Points Assigned`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID)) %>% 
-  #filter(Round == "Wholesome Rap") %>% 
-  select(-c(TRACK_ID, Title, Round)) %>% 
-  group_by(Picker, Voter_Alias) %>% 
-  mutate(TOTAL = sum(`Points Assigned`)) %>% 
-  ungroup() %>% 
-  select(-`Points Assigned`) %>%
-  filter(TOTAL != 0) %>% 
-  distinct()%>% 
-  arrange(desc(Voter_Alias)) 
+  right_join(VOTES %>% select(`Points Assigned`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID))
 
 ROUND_SELECT_CHOICES <- SONGS %>%
   select(Round) %>%
-  distinct() %>%
-  as.vector()
+  mutate(Round = as.character(Round)) %>%
+  distinct() |> 
+  pull() 
 
 ROUND_SELECT_CHOICES <- append(ROUND_SELECT_CHOICES, "All Rounds", after = 0)
 

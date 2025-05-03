@@ -1107,194 +1107,234 @@ server <- function(input, output, session) {
   ###################################################################################################
   ########################################   PAGE 5 UI   ############################################ 
   ###################################################################################################
+  VOTES_MATRIX <- reactive({  
+    
+    VOTES_SONGS_2 <- VOTES_SONGS %>% 
+      filter(Round %in% c(input$ROUND_SELECT_3)) %>% 
+      select(-c(TRACK_ID, Title, Round)) %>% 
+      group_by(Picker, Voter_Alias) %>% 
+      mutate(TOTAL = sum(`Points Assigned`)) %>% 
+      ungroup() %>% 
+      select(-`Points Assigned`) %>%
+      filter(TOTAL != 0) %>% 
+      distinct()%>% 
+      arrange(desc(Voter_Alias))
+    
+    VOTES_WIDE <- VOTES_SONGS_2 |> 
+      filter(Picker %in% c(input$PICKER_SELECT_3)) |> 
+      filter(Voter_Alias %in% c(input$PICKER_SELECT_3)) |> 
+      pivot_wider(
+        names_from = Voter_Alias,
+        values_from = TOTAL,
+        values_fill = NA
+      ) |> 
+      column_to_rownames("Picker")
   
+  VOTES_MATRIX <- data.matrix(VOTES_WIDE)
+  #dimnames(VOTES_MATRIX) <- list(To = colnames(VOTES_MATRIX), From = rownames(VOTES_MATRIX))
   
-  VOTES_FRO_DF <- reactive({
-    
-    VOTES_FRO_DF <- VOTES_SONGS %>% 
-      filter(if(input$PICKER_SELECT_VOTE != "All Pickers") Picker == input$PICKER_SELECT_VOTE else TRUE) 
-    
-  }) %>% 
-    bindCache(input$PICKER_SELECT_VOTE)
+  VOTES_MATRIX <- VOTES_MATRIX[sort(rownames(VOTES_MATRIX)), sort(colnames(VOTES_MATRIX))]
   
-  VOTES_TO_DF <- reactive({
-    
-    VOTES_TO_DF <- VOTES_SONGS %>% 
-      filter(if(input$PICKER_SELECT_VOTE != "All Pickers") Voter_Alias == input$PICKER_SELECT_VOTE else TRUE) 
-    
-  })%>% 
-    bindCache(input$PICKER_SELECT_VOTE)
+  })
   
+  output$VOTES_PLOT <- renderChorddiag({
+    
+    VOTES_PLOT <- chorddiag(VOTES_MATRIX(),
+                            tooltipGroupConnector = "\U25C0",
+                            palette = "Set3",
+                            groupColors = gg_color_hue(12),
+                            groupnamePadding = 10)
+    
+    return(VOTES_PLOT)
+    
+  })
   
-  HIGHLIGHT_VOTE_1 <- reactive({
-
-    if(input$PICKER_SELECT_VOTE != "All Pickers"){
-
-    geom_rect(
-      data = subset(VOTES_SONGS, Picker != input$PICKER_SELECT_VOTE),
-      xmin = -Inf,
-      xmax = Inf,
-      ymin = 0,
-      ymax = 32,
-      alpha = 0.1
-    )
-    } else NULL
-  })%>% 
-    bindCache(input$PICKER_SELECT_VOTE)
-
-  HIGHLIGHT_VOTE_2 <- reactive({
-
-    if(input$PICKER_SELECT_VOTE != "All Pickers"){
-
-      geom_rect(
-        data = subset(VOTES_SONGS, Voter_Alias != input$PICKER_SELECT_VOTE),
-        xmin = -Inf,
-        xmax = Inf,
-        ymin = 0,
-        ymax = 28,
-        alpha = 0.1
-      )
-    } else NULL
-  })%>% 
-    bindCache(input$PICKER_SELECT_VOTE)
-  
-  
-  output$VOTES_PLOT <- renderPlot({
-    
-    # faceted waffles:
-    
-    WAFFLE1 <- VOTES_SONGS %>% 
-      ggplot(aes(values = TOTAL, fill = Voter_Alias))+
-      geom_waffle(n_rows = 5, 
-                  color = "black", 
-                  flip = TRUE, 
-                  na.rm=TRUE)+
-      HIGHLIGHT_VOTE_1()+
-      ylab("Points Received \n(from = color)")+
-      scale_fill_paletteer_d("miscpalettes::pastel")+
-      #facet_grid("Points Received \n(from = color)"~Picker, switch = "both")+
-      facet_wrap(vars(Picker), nrow = 1)+
-      theme(strip.text.x = element_blank(),
-            #strip.background.x = element_blank(),
-            axis.text = element_blank(),
-            axis.title.y = (element_text(face = "bold", size = 12)),
-            axis.ticks = element_blank(),
-            strip.text = element_text(face = "bold")
-            ) 
-    
-    
-    WAFFLE2 <- VOTES_SONGS %>% 
-      arrange(desc(Picker)) %>% 
-      ggplot(aes(values = TOTAL))+
-      geom_waffle(aes(fill = Picker),
-                  n_rows = 5, 
-                  color = "black", 
-                  flip = TRUE, 
-                  na.rm=TRUE)+
-      HIGHLIGHT_VOTE_2()+
-      labs(x = NULL)+
-      ylim(NA, 32)+
-      ylab("Points Allotted \n(to = color)")+
-      xlab("Players")+
-      scale_fill_paletteer_d("miscpalettes::pastel")+
-      #facet_grid("Points Allotted \n(to = color)"~Voter_Alias, switch = "both")+
-      facet_wrap(vars(Voter_Alias), nrow = 1)+
-      theme(
-        #strip.background.x = element_blank(),
-        axis.text = element_blank(),,
-        axis.title.x = (element_text(face = "bold", size = 10)),
-        axis.title.y = (element_text(face = "bold", size = 12)),
-        axis.ticks = element_blank()
-        #strip.text.y = element_text(face = "bold"),
-        #strip.text= element_text(face = "bold", size = 10)
-      )
-    
-    
-    
-    if(input$PICKER_SELECT_VOTE != "All Pickers"){
-      
-      yrng <- range(VOTES_FRO_DF()$TOTAL)
-      
-    } else yrng <- c(1, 152)
-    
-    xrng <- if(input$PICKER_SELECT_VOTE == "All Pickers"){
-      
-      xrng <- 12
-      
-    }else xrng <- 11
-    
-    BAR1 <- VOTES_FRO_DF() %>% 
-      arrange(desc(Voter_Alias)) %>% 
-      ggplot(aes(y = TOTAL, x = reorder(Voter_Alias, desc(TOTAL)), fill = Voter_Alias))+
-      geom_col()+
-      annotate("text", x = xrng, y = yrng[2], 
-               label = paste("n =", sum(VOTES_FRO_DF()$TOTAL)), 
-               size = 3.5, 
-               fontface = 'bold',
-               hjust = 1, vjust = 0)+
-      xlab("Voter\n ")+
-      scale_fill_paletteer_d("miscpalettes::pastel")+
-      ggtitle(paste0("Points received by ", input$PICKER_SELECT_VOTE), subtitle = "from = color")+
-      theme(
-        #axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        axis.text = element_text(face = "bold"),
-        axis.line = element_line(linetype = "solid"),
-        plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5)
-      )
-
-    if(input$PICKER_SELECT_VOTE != "All Pickers"){
-    
-    yrng2 <- range(VOTES_TO_DF()$TOTAL)
-    
-    } else yrng2 <- c(1, 152)
-    
-    xrng2 <- if(input$PICKER_SELECT_VOTE == "All Pickers"){
-      
-      xrng2 <- 12
-      
-    }else xrng2 <- 11
-    
-    BAR2 <- VOTES_TO_DF() %>% 
-      arrange(desc(Picker)) %>% 
-      ggplot(aes(y = TOTAL, x = reorder(Picker, desc(TOTAL)), fill = Picker))+
-      geom_col()+
-      annotate("text", x = xrng2, y = yrng2[2], 
-               label = paste("n =", sum(VOTES_TO_DF()$TOTAL)), 
-               size = 3.5, 
-               fontface = 'bold',
-               hjust = 1, vjust = 0)+
-      xlab("Song Picker\n ")+
-      scale_fill_paletteer_d("miscpalettes::pastel")+
-      ggtitle(paste0("Points allotted by ", input$PICKER_SELECT_VOTE), subtitle = "to = color")+
-      theme(
-        axis.title.y = element_blank(),
-        axis.title.x = (element_text(face = "bold", size = 10)),
-        axis.text = element_text(face = "bold"),
-        axis.line = element_line(linetype = "solid"),
-        plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5)
-      )
-    
-    # all together now
-    
-    VOTES_PLOT <- WAFFLE1 + BAR1 + WAFFLE2 + BAR2 +
-      plot_layout(widths = c(5, 1)) & 
-      theme(
-        legend.position = 'none',
-        panel.grid = element_blank(),
-        panel.background = element_blank()
-      )  
-    VOTES_PLOT
-    
-  }) %>% 
-    bindCache(input$PICKER_SELECT_VOTE,
-              VOTES_TO_DF(),
-              VOTES_FRO_DF(),
-              HIGHLIGHT_VOTE_1(),
-              HIGHLIGHT_VOTE_2(),
-              session$clientData$output_VOTES_PLOT_bg
-              )
+  # VOTES_FRO_DF <- reactive({
+  #   
+  #   VOTES_FRO_DF <- VOTES_SONGS %>% 
+  #     filter(if(input$PICKER_SELECT_VOTE != "All Pickers") Picker == input$PICKER_SELECT_VOTE else TRUE) 
+  #   
+  # }) %>% 
+  #   bindCache(input$PICKER_SELECT_VOTE)
+  # 
+  # VOTES_TO_DF <- reactive({
+  #   
+  #   VOTES_TO_DF <- VOTES_SONGS %>% 
+  #     filter(if(input$PICKER_SELECT_VOTE != "All Pickers") Voter_Alias == input$PICKER_SELECT_VOTE else TRUE) 
+  #   
+  # })%>% 
+  #   bindCache(input$PICKER_SELECT_VOTE)
+  # 
+  # 
+  # HIGHLIGHT_VOTE_1 <- reactive({
+  # 
+  #   if(input$PICKER_SELECT_VOTE != "All Pickers"){
+  # 
+  #   geom_rect(
+  #     data = subset(VOTES_SONGS, Picker != input$PICKER_SELECT_VOTE),
+  #     xmin = -Inf,
+  #     xmax = Inf,
+  #     ymin = 0,
+  #     ymax = 32,
+  #     alpha = 0.1
+  #   )
+  #   } else NULL
+  # })%>% 
+  #   bindCache(input$PICKER_SELECT_VOTE)
+  # 
+  # HIGHLIGHT_VOTE_2 <- reactive({
+  # 
+  #   if(input$PICKER_SELECT_VOTE != "All Pickers"){
+  # 
+  #     geom_rect(
+  #       data = subset(VOTES_SONGS, Voter_Alias != input$PICKER_SELECT_VOTE),
+  #       xmin = -Inf,
+  #       xmax = Inf,
+  #       ymin = 0,
+  #       ymax = 28,
+  #       alpha = 0.1
+  #     )
+  #   } else NULL
+  # })%>% 
+  #   bindCache(input$PICKER_SELECT_VOTE)
+  # 
+  # 
+  # output$VOTES_PLOT <- renderPlot({
+  #   
+  #   # faceted waffles:
+  #   
+  #   WAFFLE1 <- VOTES_SONGS %>% 
+  #     ggplot(aes(values = TOTAL, fill = Voter_Alias))+
+  #     geom_waffle(n_rows = 5, 
+  #                 color = "black", 
+  #                 flip = TRUE, 
+  #                 na.rm=TRUE)+
+  #     HIGHLIGHT_VOTE_1()+
+  #     ylab("Points Received \n(from = color)")+
+  #     scale_fill_paletteer_d("miscpalettes::pastel")+
+  #     #facet_grid("Points Received \n(from = color)"~Picker, switch = "both")+
+  #     facet_wrap(vars(Picker), nrow = 1)+
+  #     theme(strip.text.x = element_blank(),
+  #           #strip.background.x = element_blank(),
+  #           axis.text = element_blank(),
+  #           axis.title.y = (element_text(face = "bold", size = 12)),
+  #           axis.ticks = element_blank(),
+  #           strip.text = element_text(face = "bold")
+  #           ) 
+  #   
+  #   
+  #   WAFFLE2 <- VOTES_SONGS %>% 
+  #     arrange(desc(Picker)) %>% 
+  #     ggplot(aes(values = TOTAL))+
+  #     geom_waffle(aes(fill = Picker),
+  #                 n_rows = 5, 
+  #                 color = "black", 
+  #                 flip = TRUE, 
+  #                 na.rm=TRUE)+
+  #     HIGHLIGHT_VOTE_2()+
+  #     labs(x = NULL)+
+  #     ylim(NA, 32)+
+  #     ylab("Points Allotted \n(to = color)")+
+  #     xlab("Players")+
+  #     scale_fill_paletteer_d("miscpalettes::pastel")+
+  #     #facet_grid("Points Allotted \n(to = color)"~Voter_Alias, switch = "both")+
+  #     facet_wrap(vars(Voter_Alias), nrow = 1)+
+  #     theme(
+  #       #strip.background.x = element_blank(),
+  #       axis.text = element_blank(),,
+  #       axis.title.x = (element_text(face = "bold", size = 10)),
+  #       axis.title.y = (element_text(face = "bold", size = 12)),
+  #       axis.ticks = element_blank()
+  #       #strip.text.y = element_text(face = "bold"),
+  #       #strip.text= element_text(face = "bold", size = 10)
+  #     )
+  #   
+  #   
+  #   
+  #   if(input$PICKER_SELECT_VOTE != "All Pickers"){
+  #     
+  #     yrng <- range(VOTES_FRO_DF()$TOTAL)
+  #     
+  #   } else yrng <- c(1, 152)
+  #   
+  #   xrng <- if(input$PICKER_SELECT_VOTE == "All Pickers"){
+  #     
+  #     xrng <- 12
+  #     
+  #   }else xrng <- 11
+  #   
+  #   BAR1 <- VOTES_FRO_DF() %>% 
+  #     arrange(desc(Voter_Alias)) %>% 
+  #     ggplot(aes(y = TOTAL, x = reorder(Voter_Alias, desc(TOTAL)), fill = Voter_Alias))+
+  #     geom_col()+
+  #     annotate("text", x = xrng, y = yrng[2], 
+  #              label = paste("n =", sum(VOTES_FRO_DF()$TOTAL)), 
+  #              size = 3.5, 
+  #              fontface = 'bold',
+  #              hjust = 1, vjust = 0)+
+  #     xlab("Voter\n ")+
+  #     scale_fill_paletteer_d("miscpalettes::pastel")+
+  #     ggtitle(paste0("Points received by ", input$PICKER_SELECT_VOTE), subtitle = "from = color")+
+  #     theme(
+  #       #axis.title.x = element_blank(),
+  #       axis.title.y = element_blank(),
+  #       axis.text = element_text(face = "bold"),
+  #       axis.line = element_line(linetype = "solid"),
+  #       plot.title = element_text(hjust = 0.5),
+  #       plot.subtitle = element_text(hjust = 0.5)
+  #     )
+  # 
+  #   if(input$PICKER_SELECT_VOTE != "All Pickers"){
+  #   
+  #   yrng2 <- range(VOTES_TO_DF()$TOTAL)
+  #   
+  #   } else yrng2 <- c(1, 152)
+  #   
+  #   xrng2 <- if(input$PICKER_SELECT_VOTE == "All Pickers"){
+  #     
+  #     xrng2 <- 12
+  #     
+  #   }else xrng2 <- 11
+  #   
+  #   BAR2 <- VOTES_TO_DF() %>% 
+  #     arrange(desc(Picker)) %>% 
+  #     ggplot(aes(y = TOTAL, x = reorder(Picker, desc(TOTAL)), fill = Picker))+
+  #     geom_col()+
+  #     annotate("text", x = xrng2, y = yrng2[2], 
+  #              label = paste("n =", sum(VOTES_TO_DF()$TOTAL)), 
+  #              size = 3.5, 
+  #              fontface = 'bold',
+  #              hjust = 1, vjust = 0)+
+  #     xlab("Song Picker\n ")+
+  #     scale_fill_paletteer_d("miscpalettes::pastel")+
+  #     ggtitle(paste0("Points allotted by ", input$PICKER_SELECT_VOTE), subtitle = "to = color")+
+  #     theme(
+  #       axis.title.y = element_blank(),
+  #       axis.title.x = (element_text(face = "bold", size = 10)),
+  #       axis.text = element_text(face = "bold"),
+  #       axis.line = element_line(linetype = "solid"),
+  #       plot.title = element_text(hjust = 0.5),
+  #       plot.subtitle = element_text(hjust = 0.5)
+  #     )
+  #   
+  #   # all together now
+  #   
+  #   VOTES_PLOT <- WAFFLE1 + BAR1 + WAFFLE2 + BAR2 +
+  #     plot_layout(widths = c(5, 1)) & 
+  #     theme(
+  #       legend.position = 'none',
+  #       panel.grid = element_blank(),
+  #       panel.background = element_blank()
+  #     )  
+  #   VOTES_PLOT
+  #   
+  # }) %>% 
+  #   bindCache(input$PICKER_SELECT_VOTE,
+  #             VOTES_TO_DF(),
+  #             VOTES_FRO_DF(),
+  #             HIGHLIGHT_VOTE_1(),
+  #             HIGHLIGHT_VOTE_2(),
+  #             session$clientData$output_VOTES_PLOT_bg
+  #             )
   
 }

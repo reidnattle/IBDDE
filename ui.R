@@ -14,9 +14,9 @@ ui <- page_navbar(
   
   theme = bs_add_variables(
     bs_theme(
-      #base_font = bslib::font_google("News Cycle"),
-      #heading_font = bslib::font_google("News Cycle"),
-      preset = "zephyr",
+      base_font = bslib::font_google("News Cycle"),
+      heading_font = bslib::font_google("News Cycle"),
+      preset = "journal",
       info = "#008cba"
       #008cba
       #info = "#5A4FCF"
@@ -584,7 +584,7 @@ ui <- page_navbar(
               layout_sidebar(
                 sidebar = sidebar(
                   #img(src = "30.png", width = "100%"),
-                  width = 300,
+                  width = 320,
                   fillable = FALSE,
                   id = "GLOBAL_SIDEBAR",
                   open = "always",
@@ -632,7 +632,9 @@ ui <- page_navbar(
                   
                   card(
                     full_screen = TRUE,
-                    card_body(DTOutput("STANDINGS_TAB", height = "100%"))
+                    class = "p-0",
+                    card_body(DTOutput("STANDINGS_TAB", height = "100%"),
+                    )
                   )
                   
                 ),
@@ -722,41 +724,64 @@ ui <- page_navbar(
   nav_panel(
     "Votes",
     page_fluid(
-        
-      "BRB"
-      
-        #   layout_sidebar(
-        #     
-        #     sidebar = sidebar(
-        #       
-        #       pickerInput("PICKER_SELECT_VOTE",
-        #                   "Pick a Player",
-        #                   choices = PICKER_SELECT_CHOICES,
-        #                   selected = "All Pickers",
-        #                   options = list(actionsBox = TRUE,
-        #                                  dropupAuto = FALSE,
-        #                                  style = "btn-info",
-        #                                  container = 'body'
-        #                                  
-        #                                  #style = "btn-sm"
-        #                   )
-        #       )
-        #     ),
-        #     card(
-        #     
-        #   # card_header(
-        #   #           
-        #   # ),
-        #   
-        #   card_body(plotOutput("VOTES_PLOT", height = 625),
-        #                class = "p-0"
-        # ),
-        # #full_screen = TRUE
-        # )
-        # )
+      layout_sidebar(
+        sidebar = sidebar(
+          #img(src = "30.png", width = "100%"),
+          width = 320,
+          fillable = FALSE,
+          id = "GLOBAL_SIDEBAR",
+          open = "always",
+          
+          card( 
+            #class = c("text-black"),
+            
+            card_header(
+              "Filter Outputs",
+              class = c("bg-teal", "text-black", "font-weight-bold"),
+            ),
+            
+            card_body(
+              
+              pickerInput("PICKER_SELECT_3",
+                          label = "Pick Pickers",
+                          choices = PICKER_SELECT_CHOICES[!PICKER_SELECT_CHOICES == "All Pickers"],
+                          selected = PICKER_SELECT_CHOICES[!PICKER_SELECT_CHOICES == "All Pickers"],
+                          multiple = TRUE,
+                          options = pickerOptions(actionsBox = TRUE,
+                                                  #dropupAuto = FALSE,
+                                                  style = c("btn-info"),
+                                                  container = 'body',
+                                                  selectedTextFormat = 'count > 4'
+                          )
+              ),
+              
+              pickerInput("ROUND_SELECT_3",
+                          label = "Pick Rounds",
+                          choices = ROUND_SELECT_CHOICES[!ROUND_SELECT_CHOICES == "All Rounds"],
+                          selected = ROUND_SELECT_CHOICES[!ROUND_SELECT_CHOICES == "All Rounds"],
+                          multiple = TRUE,
+                          options = pickerOptions(actionsBox = TRUE,
+                                                  #dropupAuto = FALSE,
+                                                  style = c("btn-info"),
+                                                  container = 'body',
+                                                  selectedTextFormat = 'count > 4'
+                          )
+              )
+            )
+          )
+          ),
+        card(
+          class = "bg-light",
+          #card_header(),
+          card_body(
+            chorddiagOutput("VOTES_PLOT", height = 625))
+        )
+        ),
+
       )
-    )
+    
   
+  )
   ),
   
   nav_spacer(),

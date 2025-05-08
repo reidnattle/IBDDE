@@ -1,5 +1,6 @@
+#polynomial shizz: https://www.youtube.com/watch?v=gmdilIX1YOE
 
-#source("IBDD_DATA_WRANG.R")
+source("functions.R")
 
 library(shiny)
 library(tidyverse)
@@ -23,6 +24,8 @@ library(showtext)
 library(chorddiag)
 library(Cairo)
 library(RColorBrewer)
+library(ggpubr)
+library(ggpmisc)
 
 
 options(shiny.useragg = TRUE)
@@ -59,9 +62,19 @@ SONGS_LONG_CAT <- SONGS %>%
     names_to = "variable"
   )
 
+
 VOTES_SONGS <- SONGS %>% 
   select(1, Round, Picker, TRACK_ID) %>% 
   right_join(VOTES %>% select(`Points Assigned`, TRACK_ID, Voter_Alias), by = join_by(TRACK_ID))
+
+
+SONGS_LONG_VOTER <- SONGS_LONG |>
+  left_join(
+    VOTES_SONGS |>
+      select(TRACK_ID, Voter_Alias, `Points Assigned`),
+    by = "TRACK_ID"
+  ) |>
+  distinct()
 
 ROUND_SELECT_CHOICES <- SONGS %>%
   select(Round) %>%

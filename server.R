@@ -163,7 +163,8 @@ server <- function(input, output, session) {
       #ylab(paste0("Points allocated to ", input$PICKER_SELECT))+
       xlab("Vote allocator")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
-      coord_flip()
+      coord_flip()+
+      PickerFillScale
     
     VOTE_SUM_PLOT
     
@@ -521,6 +522,18 @@ server <- function(input, output, session) {
     
   })
   
+  ###########################################################################################
+  #############           REGRESSION PAGE SERVER           ################################ 
+  ###########################################################################################
+  
+  output$REG_PLOT <- renderPlot({
+    
+    PLOT_REG(.variable = input$PARAM_SELECT_REG, 
+            .voter = input$VOTER_SELECT_REG, 
+            .round = input$ROUND_SELECT_REG, 
+            .reg = input$NTH_DEG_SEL)
+    
+  })
   
   ############################################################################################################
   #############################################  PAGE 3 SERVER  ##############################################
@@ -947,8 +960,8 @@ server <- function(input, output, session) {
       scrollX = TRUE,
       autoWidth = TRUE,
       columnDefs = list(list(visible = FALSE, targets = c("standings", "VOTES_TOTES", "DIST_MEAN")),
-                        list(width = '110px', targets = 0),
-                        list(width = '50px', targets = 1)
+                        list(width = '70px', targets = 0),
+                        list(width = '45px', targets = 1)
       )
     )      
     )%>% 
@@ -958,8 +971,8 @@ server <- function(input, output, session) {
                   backgroundSize = '98% 88%',
                   backgroundRepeat = 'no-repeat',
                   backgroundPosition = 'center') %>% 
-      formatStyle(c(1:2),
-                  fontWeight = 'bold') %>% 
+      # formatStyle(c(1:2),
+      #             fontWeight = 'bold') %>% 
       formatStyle(c(2, 4), "white-space"="nowrap") %>% 
       formatStyle(c(1:5), fontSize = '85%')
     

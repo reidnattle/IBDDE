@@ -14,9 +14,9 @@ ui <- page_navbar(
   
   theme = bs_add_variables(
     bs_theme(
-      base_font = bslib::font_google("News Cycle"),
-      heading_font = bslib::font_google("News Cycle"),
-      preset = "journal",
+      #base_font = bslib::font_google("News Cycle"),
+      #heading_font = bslib::font_google("News Cycle"),
+      preset = "pulse",
       info = "#008cba"
       #008cba
       #info = "#5A4FCF"
@@ -24,7 +24,7 @@ ui <- page_navbar(
     "bslib-value-box-horizontal-break-point" = "1px"
     #"navbar-light-brand-color" = "darkgreen"
   ),
-  bg = "#008cba",
+  bg = "#00ba8b",
   inverse = TRUE,
   nav_panel("Overview",
             
@@ -108,7 +108,7 @@ ui <- page_navbar(
                                                 size = "0.70em"),
                     fill = FALSE,
                     height = "90px",
-                    theme = "teal",
+                    theme = "cyan",
                     
                   ),
                   
@@ -120,7 +120,7 @@ ui <- page_navbar(
                     ),
                     fill = FALSE,
                     height = "90px",
-                    theme = "purple",
+                    theme = "cyan",
                     
                   )
                 ),
@@ -279,7 +279,7 @@ ui <- page_navbar(
                                                          size = "0.70em"),
                              fill = FALSE,
                              height = "90px",
-                             theme = "purple",
+                             theme = "cyan",
                              
                            ),
                            
@@ -293,7 +293,7 @@ ui <- page_navbar(
                              
                              fill = FALSE,
                              height = "90px",
-                             theme = "indigo"
+                             theme = "cyan"
                            ),
                            
                            value_box(
@@ -305,7 +305,7 @@ ui <- page_navbar(
                              ),
                              fill = FALSE,
                              height = "90px",
-                             theme = "teal",
+                             theme = "cyan",
                              showcase_layout = showcase_left_center(
                                width = 0.25,
                              )
@@ -365,6 +365,79 @@ ui <- page_navbar(
                          )
                        )
                      )
+                     
+           ),
+           
+           nav_panel("Regression",
+                     
+                     page_fillable(
+                       
+                       layout_sidebar(
+                         sidebar = sidebar(
+                           width = 230,
+                           fillable = FALSE,
+                           id = "GLOBAL_SIDEBAR",
+                           open = "always",
+                           img(src = "30.png", width = "100%"),
+                           
+                           pickerInput("PARAM_SELECT_REG",
+                                       "Pick a Variable",
+                                       choices = c("All Variables", VAR_SELECT_CHOICES),
+                                       selected = "All Variables",
+                                       options = list(actionsBox = TRUE,
+                                                      dropupAuto = FALSE,
+                                                      style = c("btn-info"),
+                                                      container = 'body'
+                                       )
+                           ),
+                           pickerInput("VOTER_SELECT_REG",
+                                       "Pick a Voter",
+                                       choices = c("All Voters", PICKER_SELECT_CHOICES),
+                                       selected = "All Voters",
+                                       options = list(actionsBox = TRUE,
+                                                      dropupAuto = FALSE,
+                                                      style = "btn-info",
+                                                      container = 'body'
+                                       )
+                           ),
+                           
+                           pickerInput("ROUND_SELECT_REG",
+                                       "Pick a Round",
+                                       choices = c("All Rounds", ROUND_SELECT_CHOICES),
+                                       selected = "All Rounds",
+                                       options = list(actionsBox = TRUE,
+                                                      dropupAuto = FALSE,
+                                                      style = c("btn-info"),
+                                                      container = 'body'
+                                       )
+                           ),
+                           
+                           pickerInput(
+                             "NTH_DEG_SEL",
+                             "Select polynomial degree",
+                             choices = c(1:5),
+                             selected = 2,
+                             options = list(
+                               container = 'body'
+                                       )
+                           )
+                         ),
+                         
+                         card(
+                           full_screen = TRUE,
+                           
+                           card_body(
+                             plotOutput("REG_PLOT", height = 550
+                                        #click = "REG_PLOT_CLICK",
+                                        #dblclick = "BUMP_DCLICK",
+                                        #brush = brushOpts("BUMP_BRUSH",
+                                        #                  resetOnNew = TRUE)
+                             )
+                           )
+                         )
+                         )
+                         
+                       )
                      
            ),
            
@@ -476,7 +549,7 @@ ui <- page_navbar(
                                                          size = "0.70em"),
                              fill = FALSE,
                              height = "90px",
-                             theme = "teal",
+                             theme = "cyan",
                              
                            ),
                            
@@ -789,5 +862,5 @@ ui <- page_navbar(
               #style = "color: #002f6c; font-weight: bold;"
   )),
   nav_item(link_git),
-  nav_item(input_dark_mode(id = "DARK_MODE", mode = "light")), 
+  nav_item(input_dark_mode(id = "DARK_MODE", mode = "dark")), 
 )

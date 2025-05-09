@@ -390,27 +390,40 @@ ui <- page_navbar(
                                                       container = 'body'
                                        )
                            ),
-                           pickerInput("VOTER_SELECT_REG",
+                           
+                           conditionalPanel(
+                             condition = "input.PARAM_SELECT_REG != 'All Variables' && input.VOTER_SELECT_REG == 'All Voters' && input.ROUND_SELECT_REG == 'All Rounds'",
+                             awesomeRadio("FACET_BY",
+                                        "Facet by:",
+                                        choices = c("Round", "Voter" = "Voter_Alias"),
+                                        status = "primary"
+                           )),
+                           
+                           conditionalPanel(
+                             condition = "input.ROUND_SELECT_REG == 'All Rounds'",
+                             pickerInput("VOTER_SELECT_REG",
                                        "Pick a Voter",
-                                       choices = c("All Voters", PICKER_SELECT_CHOICES),
+                                       choices = c("All Voters", PICKER_SELECT_CHOICES_2),
                                        selected = "All Voters",
                                        options = list(actionsBox = TRUE,
                                                       dropupAuto = FALSE,
                                                       style = "btn-info",
                                                       container = 'body'
                                        )
-                           ),
+                           )),
                            
-                           pickerInput("ROUND_SELECT_REG",
+                           conditionalPanel(
+                             condition = "input.VOTER_SELECT_REG == 'All Voters'",
+                             pickerInput("ROUND_SELECT_REG",
                                        "Pick a Round",
-                                       choices = c("All Rounds", ROUND_SELECT_CHOICES),
+                                       choices = ROUND_SELECT_CHOICES,
                                        selected = "All Rounds",
                                        options = list(actionsBox = TRUE,
                                                       dropupAuto = FALSE,
                                                       style = c("btn-info"),
                                                       container = 'body'
                                        )
-                           ),
+                           )),
                            
                            pickerInput(
                              "NTH_DEG_SEL",

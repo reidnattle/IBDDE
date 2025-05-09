@@ -125,6 +125,11 @@ names(PickerColors) <- levels(SONGS$Picker)
 PickerColScale <- scale_color_manual(name = "Picker", values = PickerColors)
 PickerFillScale <- scale_fill_manual(name = "Picker", values = PickerColors)
 
+VoterColors <- paletteer_d("rcartocolor::Vivid")
+names(VoterColors) <- levels(SONGS$Voter_Alias)
+VoterColScale <- scale_color_manual(name = "Voter", values = VoterColors)
+VoterFillScale <- scale_fill_manual(name = "Voter", values = VoterColors)
+
 RoundColors <- paletteer_d("ggsci::springfield_simpsons")[-c(11:13)]
 names(RoundColors) <- levels(SONGS$round_abbr)
 RoundColScale <- scale_color_manual(name = "round_abbr", values = RoundColors)

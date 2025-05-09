@@ -164,7 +164,7 @@ server <- function(input, output, session) {
       xlab("Vote allocator")+
       scale_y_continuous(breaks = ~round(unique(pretty(.))), expand = expansion(mult = c( 0.08, 0.08)))+
       coord_flip()+
-      PickerFillScale
+      VoterFillScale
     
     VOTE_SUM_PLOT
     
@@ -531,7 +531,8 @@ server <- function(input, output, session) {
     PLOT_REG(.variable = input$PARAM_SELECT_REG, 
             .voter = input$VOTER_SELECT_REG, 
             .round = input$ROUND_SELECT_REG, 
-            .reg = input$NTH_DEG_SEL)
+            .reg = input$NTH_DEG_SEL,
+            .facet = input$FACET_BY)
     
   })
   

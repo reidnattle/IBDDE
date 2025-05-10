@@ -532,7 +532,35 @@ server <- function(input, output, session) {
             .voter = input$VOTER_SELECT_REG, 
             .round = input$ROUND_SELECT_REG, 
             .reg = input$NTH_DEG_SEL,
-            .facet = input$FACET_BY)
+            .facet = input$FACET_BY,
+            .formula = input$SHOW_FORMULA,
+            #.color = input$COLOR_POINT_REG
+            )
+    
+  })
+  
+  REGRESSION_BY = reactive({
+    
+    if(input$PARAM_SELECT_REG != "All Variables" & input$FACET_BY == "Voter_Alias" & input$ROUND_SELECT_REG == "All Rounds" & input$VOTER_SELECT_REG == "All Voters") {
+      REGRESSION_BY <- " by Voter"
+    } else if(input$PARAM_SELECT_REG != "All Variables" & input$FACET_BY == "Round" & input$ROUND_SELECT_REG == "All Rounds" & input$VOTER_SELECT_REG == "All Voters") {
+      REGRESSION_BY <- " by Round"
+    } else if(input$ROUND_SELECT_REG != "All Rounds" & input$PARAM_SELECT_REG == "All Variables") {
+      REGRESSION_BY <- paste0(" in the ", input$ROUND_SELECT_REG, " round")
+    }else if(input$VOTER_SELECT_REG != "All Voters" & input$PARAM_SELECT_REG == "All Variables") {
+      REGRESSION_BY <- paste0(" for ", input$VOTER_SELECT_REG, "'s picks")
+    } else if(input$ROUND_SELECT_REG != "All Rounds" & input$PARAM_SELECT_REG != "All Variables") {
+      REGRESSION_BY <- paste0(" in the ", input$ROUND_SELECT_REG, " round by voter")
+    }else if(input$VOTER_SELECT_REG != "All Voters" & input$PARAM_SELECT_REG != "All Variables") {
+      REGRESSION_BY <- paste0(" for ", input$VOTER_SELECT_REG, "'s picks")
+       } else {
+      REGRESSION_BY <- ""
+    }
+  })
+  
+  output$REG_TITLE <- renderText({
+    
+    paste0("Regression of ", input$PARAM_SELECT_REG, REGRESSION_BY())
     
   })
   
@@ -1174,9 +1202,9 @@ server <- function(input, output, session) {
   output$VOTES_PLOT <- renderChorddiag({
     
     VOTES_PLOT <- chorddiag(VOTES_MATRIX(),
-                            tooltipGroupConnector = "\U25C0",
-                            palette = "Set3",
-                            groupColors = PickerColors,
+                            #tooltipGroupConnector = "\U25C0",
+                            #palette = "Set3",
+                            groupColors = VoterColors,
                             groupnamePadding = 10)
     
     return(VOTES_PLOT)

@@ -1,12 +1,12 @@
 
 
-PLOT_REG <- function(.variable = "All Variables", .voter = "All Voters", .round = "All Rounds", .reg = 2, .facet) {
+PLOT_REG <- function(.variable = "All Variables", .voter = "All Voters", .round = "All Rounds", .reg = 2, .facet, .color = NULL, .formula = FALSE) {
 
   if(.voter == "All Voters" & .variable == "All Variables" & .round == "All Rounds") {
   
-plot1 <- SONGS_LONG |>
+plot <- SONGS_LONG |>
   ggplot(aes(x = value, y = Points)) +
-  geom_jitter(alpha = 0.6, size = 1.5, height = 0.02, width = 0.02)+
+  geom_jitter(aes(text = Title), alpha = 0.6, size = 1.5, height = 0.02, width = 0.02)+
   stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE)) +
   stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
                aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
@@ -21,13 +21,11 @@ plot1 <- SONGS_LONG |>
   ylim(-5, 27)
 
 
-plot1 <- ggpar(plot1, legend = "right")
-
-return(plot1)
+plot <- ggpar(plot, legend = "right")
 
 } else if (.voter == "All Voters" & .variable != "All Variables" & .round == "All Rounds" & .facet == "Voter_Alias") {
 
-  plot2 <- SONGS_LONG_VOTER |>
+  plot <- SONGS_LONG_VOTER |>
     filter(variable == .variable) |> 
     #ggscatter(x = "value", y = "Points Assigned", font.label = c(4, "plain"), label.rectangle = TRUE)+
     ggplot(aes(x = value, y = `Points Assigned`)) +
@@ -45,13 +43,12 @@ return(plot1)
           strip.background = element_rect(fill = NA)) +
     ylim(-1, 5)
   
-  plot2 <- ggpar(plot2, legend = "right") 
+  plot <- ggpar(plot, legend = "right") 
   
-  return(plot2)
-  
+
 } else if (.voter == "All Voters" & .variable != "All Variables" & .round == "All Rounds" & .facet == "Round"){
   
-  plot2 <- SONGS_LONG |>
+  plot <- SONGS_LONG |>
     filter(variable == .variable) |> 
     ggplot(aes(x = value, y = Points)) +
     geom_jitter(alpha = 0.6, size = 1.5, height = 0.2, width = 0.02)+
@@ -68,12 +65,11 @@ return(plot1)
           panel.border = element_rect(fill = NA)) +
     ylim(-5, 27)
   
-  return(plot2)
-  
+
   
 } else if (.voter != "All Voters" & .variable == "All Variables" & .round == "All Rounds"){ 
   
-plot3 <- SONGS_LONG_VOTER |>
+plot <- SONGS_LONG_VOTER |>
   filter(Voter_Alias == .voter) |>
   #ggscatter(x = "value", y = "Points Assigned")+
   ggplot(aes(x = value, y = `Points Assigned`)) +
@@ -92,13 +88,12 @@ plot3 <- SONGS_LONG_VOTER |>
         panel.border = element_rect(fill = NA)) +
   ylim(-1, 5)
 
-plot3 <- ggpar(plot3, legend = "right")
+plot <- ggpar(plot, legend = "right")
 
-return(plot3)
 
 } else if (.voter == "All Voters" & .variable == "All Variables" & .round != "All Rounds"){
 
-  plot3 <- SONGS_LONG_VOTER |>
+  plot <- SONGS_LONG_VOTER |>
     filter(Round == .round) |>
     #ggscatter(x = "value", y = "Points Assigned")+
     ggplot(aes(x = value, y = `Points Assigned`)) +
@@ -117,13 +112,12 @@ return(plot3)
           panel.border = element_rect(fill = NA)) +
     ylim(-1, 5)
   
-  plot3 <- ggpar(plot3, legend = "right")
+  plot <- ggpar(plot, legend = "right")
   
-  return(plot3)
-  
+
 } else if (.voter == "All Voters" & .variable != "All Variables" & .round != "All Rounds"){
   
-  plot3 <- SONGS_LONG_VOTER |>
+  plot <- SONGS_LONG_VOTER |>
     filter(variable == .variable) |>
     filter(Round == .round) |>
     #ggscatter(x = "value", y = "Points Assigned")+
@@ -143,13 +137,12 @@ return(plot3)
           panel.border = element_rect(fill = NA)) +
     ylim(-1, 5)
   
-  plot3 <- ggpar(plot3, legend = "right")
+  plot <- ggpar(plot, legend = "right")
   
-  return(plot3)
-  
+
 } else{
   
-  plot2 <- SONGS_LONG_VOTER |>
+  plot <- SONGS_LONG_VOTER |>
     filter(Voter_Alias == .voter) |>
     filter(variable == .variable) |>
     ggplot(aes(x = value, y = `Points Assigned`)) +
@@ -163,7 +156,16 @@ return(plot3)
     panel.grid.minor = element_blank(),
     panel.background = element_rect(fill = NA),
     panel.border = element_rect(fill = NA))
-return(plot2)
-  #ggpar(plot2, legend = "right")
+  #ggpar(plot, legend = "right")
 }
+
+  if(.formula == TRUE) {
+    plot <- plot + 
+      stat_regline_equation(label.y.npc = 0.8, formula = y~poly(x, .reg, raw = TRUE), size = 3) +
+      #stat_regline_equation(label.y.npc = 0.8, formula = y~poly(x, .reg, raw = TRUE)) +
+      theme(legend.position = "none")
+    
+    return(plot)
+  }
+  else return(plot)
 }

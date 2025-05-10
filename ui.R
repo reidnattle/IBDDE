@@ -16,7 +16,7 @@ ui <- page_navbar(
     bs_theme(
       #base_font = bslib::font_google("News Cycle"),
       #heading_font = bslib::font_google("News Cycle"),
-      preset = "pulse",
+      preset = "flatly",
       info = "#008cba"
       #008cba
       #info = "#5A4FCF"
@@ -32,7 +32,7 @@ ui <- page_navbar(
             page_fluid(
               
               tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
-              
+              tags$head(tags$style(HTML('.bslib-value-box .value-box-title {font-size:18px;}'))),
               layout_sidebar(
                 sidebar = sidebar(
                   img(src = "30.png", width = "100%"),
@@ -368,91 +368,7 @@ ui <- page_navbar(
                      
            ),
            
-           nav_panel("Regression",
-                     
-                     page_fillable(
-                       
-                       layout_sidebar(
-                         sidebar = sidebar(
-                           width = 230,
-                           fillable = FALSE,
-                           id = "GLOBAL_SIDEBAR",
-                           open = "always",
-                           img(src = "30.png", width = "100%"),
-                           
-                           pickerInput("PARAM_SELECT_REG",
-                                       "Pick a Variable",
-                                       choices = c("All Variables", VAR_SELECT_CHOICES),
-                                       selected = "All Variables",
-                                       options = list(actionsBox = TRUE,
-                                                      dropupAuto = FALSE,
-                                                      style = c("btn-info"),
-                                                      container = 'body'
-                                       )
-                           ),
-                           
-                           conditionalPanel(
-                             condition = "input.PARAM_SELECT_REG != 'All Variables' && input.VOTER_SELECT_REG == 'All Voters' && input.ROUND_SELECT_REG == 'All Rounds'",
-                             awesomeRadio("FACET_BY",
-                                        "Facet by:",
-                                        choices = c("Round", "Voter" = "Voter_Alias"),
-                                        status = "primary"
-                           )),
-                           
-                           conditionalPanel(
-                             condition = "input.ROUND_SELECT_REG == 'All Rounds'",
-                             pickerInput("VOTER_SELECT_REG",
-                                       "Pick a Voter",
-                                       choices = c("All Voters", PICKER_SELECT_CHOICES_2),
-                                       selected = "All Voters",
-                                       options = list(actionsBox = TRUE,
-                                                      dropupAuto = FALSE,
-                                                      style = "btn-info",
-                                                      container = 'body'
-                                       )
-                           )),
-                           
-                           conditionalPanel(
-                             condition = "input.VOTER_SELECT_REG == 'All Voters'",
-                             pickerInput("ROUND_SELECT_REG",
-                                       "Pick a Round",
-                                       choices = ROUND_SELECT_CHOICES,
-                                       selected = "All Rounds",
-                                       options = list(actionsBox = TRUE,
-                                                      dropupAuto = FALSE,
-                                                      style = c("btn-info"),
-                                                      container = 'body'
-                                       )
-                           )),
-                           
-                           pickerInput(
-                             "NTH_DEG_SEL",
-                             "Select polynomial degree",
-                             choices = c(1:5),
-                             selected = 2,
-                             options = list(
-                               container = 'body'
-                                       )
-                           )
-                         ),
-                         
-                         card(
-                           full_screen = TRUE,
-                           
-                           card_body(
-                             plotOutput("REG_PLOT", height = 550
-                                        #click = "REG_PLOT_CLICK",
-                                        #dblclick = "BUMP_DCLICK",
-                                        #brush = brushOpts("BUMP_BRUSH",
-                                        #                  resetOnNew = TRUE)
-                             )
-                           )
-                         )
-                         )
-                         
-                       )
-                     
-           ),
+
            
            ###################################################################################################
            ########################################   PAGE 3 UI   ############################################ 
@@ -460,6 +376,7 @@ ui <- page_navbar(
            nav_panel("Categorical variables",
                      
                      page_fluid(
+                       tags$head(tags$style(HTML('.bslib-value-box .value-box-value {font-size:28px;}'))),
                        tags$style(HTML(".dataTables_wrapper .dataTables_filter input{
                       width: 50px;}"
                        )),
@@ -670,7 +587,7 @@ ui <- page_navbar(
               layout_sidebar(
                 sidebar = sidebar(
                   #img(src = "30.png", width = "100%"),
-                  width = 320,
+                  width = 330,
                   fillable = FALSE,
                   id = "GLOBAL_SIDEBAR",
                   open = "always",
@@ -719,7 +636,8 @@ ui <- page_navbar(
                   card(
                     full_screen = TRUE,
                     class = "p-0",
-                    card_body(DTOutput("STANDINGS_TAB", height = "100%"),
+                    card_body(
+                      DTOutput("STANDINGS_TAB", height = "100%")
                     )
                   )
                   
@@ -868,6 +786,115 @@ ui <- page_navbar(
     
   
   )
+  ),
+  
+  ###################################################################################################
+  ########################################   PAGE 6 UI   ############################################ 
+  ###################################################################################################
+  
+  nav_menu("Analysis",
+           
+    nav_panel("Regression",
+              
+              page_fillable(
+                
+                layout_sidebar(
+                  sidebar = sidebar(
+                    width = 230,
+                    fillable = FALSE,
+                    id = "GLOBAL_SIDEBAR",
+                    open = "always",
+                    img(src = "30.png", width = "100%"),
+                    
+                    pickerInput("PARAM_SELECT_REG",
+                                "Pick a Variable",
+                                choices = c("All Variables", VAR_SELECT_CHOICES),
+                                selected = "All Variables",
+                                options = list(actionsBox = TRUE,
+                                               dropupAuto = FALSE,
+                                               style = c("btn-info"),
+                                               container = 'body'
+                                )
+                    ),
+                    
+                    conditionalPanel(
+                      condition = "input.PARAM_SELECT_REG != 'All Variables' && input.VOTER_SELECT_REG == 'All Voters' && input.ROUND_SELECT_REG == 'All Rounds'",
+                      awesomeRadio("FACET_BY",
+                                   "Facet by:",
+                                   choices = c("Round", "Voter" = "Voter_Alias"),
+                                   status = "primary"
+                      )),
+                    
+                    conditionalPanel(
+                      condition = "input.ROUND_SELECT_REG == 'All Rounds'",
+                      pickerInput("VOTER_SELECT_REG",
+                                  "Pick a Voter",
+                                  choices = c("All Voters", PICKER_SELECT_CHOICES_2),
+                                  selected = "All Voters",
+                                  options = list(actionsBox = TRUE,
+                                                 dropupAuto = FALSE,
+                                                 style = "btn-info",
+                                                 container = 'body'
+                                  )
+                      )),
+                    
+                    conditionalPanel(
+                      condition = "input.VOTER_SELECT_REG == 'All Voters'",
+                      pickerInput("ROUND_SELECT_REG",
+                                  "Pick a Round",
+                                  choices = ROUND_SELECT_CHOICES,
+                                  selected = "All Rounds",
+                                  options = list(actionsBox = TRUE,
+                                                 dropupAuto = FALSE,
+                                                 style = c("btn-info"),
+                                                 container = 'body'
+                                  )
+                      )),
+                    
+                    pickerInput(
+                      "NTH_DEG_SEL",
+                      "Select polynomial degree",
+                      choices = c(1:5),
+                      selected = 2,
+                      options = list(
+                        container = 'body'
+                      )
+                    )
+                  ),
+                  
+                  card(
+                    full_screen = TRUE,
+                    card_header(
+                      textOutput("REG_TITLE"),
+                      popover(
+                        bsicons::bs_icon("gear"), 
+                        # awesomeRadio(
+                        #   inputId = "COLOR_POINT_REG",
+                        #   label = "Color points by:",
+                        #   choices = c("No color", "Round", "Picker")
+                        # ),
+                        awesomeCheckbox(
+                          inputId = "SHOW_FORMULA",
+                          "Show regression formula"
+                        ),
+                        title = "plot controls"),
+                      class = "d-flex justify-content-between"
+                    ),
+                    card_body(
+                      plotOutput("REG_PLOT", height = 550
+                                 #click = "REG_PLOT_CLICK",
+                                 #dblclick = "BUMP_DCLICK",
+                                 #brush = brushOpts("BUMP_BRUSH",
+                                 #                  resetOnNew = TRUE)
+                      )
+                    )
+                  )
+                )
+                
+              )
+              
+    ),
+    
   ),
   
   nav_spacer(),

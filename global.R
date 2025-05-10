@@ -26,6 +26,7 @@ library(Cairo)
 library(RColorBrewer)
 library(ggpubr)
 library(ggpmisc)
+library(plotly)
 
 
 options(shiny.useragg = TRUE)

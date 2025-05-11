@@ -26,7 +26,6 @@ library(Cairo)
 library(RColorBrewer)
 library(ggpubr)
 library(ggpmisc)
-library(plotly)
 
 
 options(shiny.useragg = TRUE)
@@ -131,7 +130,7 @@ names(VoterColors) <- levels(SONGS$Voter_Alias)
 VoterColScale <- scale_color_manual(name = "Voter", values = VoterColors)
 VoterFillScale <- scale_fill_manual(name = "Voter", values = VoterColors)
 
-RoundColors <- paletteer_d("ggsci::springfield_simpsons")[-c(11:13)]
+RoundColors <- paletteer_d("ggsci::springfield_simpsons")[-c(6, 11:12)]
 names(RoundColors) <- levels(SONGS$round_abbr)
 RoundColScale <- scale_color_manual(name = "round_abbr", values = RoundColors)
 RoundFillScale <- scale_fill_manual(name = "round_abbr", values = RoundColors)

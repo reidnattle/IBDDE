@@ -101,8 +101,11 @@ server <- function(input, output, session) {
       geom_label(aes(label = `Points Assigned`, fill = Picker), color = DARK_MODE_TEXT_SWITCH(), size = 6, fontface = "bold") +
       theme(axis.text = element_text(size = 13, face = "bold"),
             axis.title = element_text(size = 13, face = "bold"),
+            legend.position = "none",
+            panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            legend.position = "none"
+            panel.background = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),
             #axis.ticks.x = element_blank(),
             #axis.text.x = element_blank(),
             #panel.grid.major = element_blank(), 
@@ -152,8 +155,11 @@ server <- function(input, output, session) {
       geom_label(aes(label = `Votes Cast`, fill = Voter_Alias), color = DARK_MODE_TEXT_SWITCH(), size = 6, fontface = "bold") +
       theme(axis.text = element_text(size = 13, face = "bold"),
             axis.title = element_text(size = 13, face = "bold"),
+            legend.position = "none",
+            panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            legend.position = "none"
+            panel.background = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),
             #axis.ticks.x = element_blank(),
             #axis.text.x = element_blank(),
             #panel.grid.major = element_blank(), 
@@ -228,8 +234,11 @@ server <- function(input, output, session) {
       geom_bar(fill = "#8CB5B3", width = 0.7, color = "#39FF14")+
       geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = DARK_MODE_TEXT_SWITCH(), fontface = "bold", fill = "#8CB5B3")+
       theme(#axis.line = element_line(linetype = "solid"),
+        axis.title = element_text(face = "bold"),
+        panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
-        axis.title = element_text(face = "bold")
+        panel.background = element_rect(fill = NA),
+        axis.line = element_line(linetype = "solid"),
         #panel.grid.major = element_blank(), 
         #panel.grid.minor = element_blank(),
         #panel.background = element_blank()
@@ -367,7 +376,10 @@ server <- function(input, output, session) {
       HISTO_DENSE()+
       theme(#axis.line = element_line(linetype = "solid"),
         #panel.grid.major = element_blank(), 
+        panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = NA),
+        axis.line = element_line(linetype = "solid"),,
         axis.title = element_text(
           face = "bold")
         #panel.background = element_blank()
@@ -416,7 +428,7 @@ server <- function(input, output, session) {
                  y = value, 
                  fill = .data[[input$GROUP_SELECT]]))+
       #scale_x_discrete(labels = Round)+
-      geom_boxplot(outlier.shape = NA)+
+      geom_boxplot(outlier.shape = NA, alpha = 0.8)+
       geom_jitter(width = 0.08)+
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
@@ -427,7 +439,10 @@ server <- function(input, output, session) {
             plot.title = element_text(size = 20, hjust = 1),
             #axis.line = element_line(linetype = "solid"),
             #panel.grid.major = element_blank(), 
+            panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
+            panel.background = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),
             #panel.background = element_blank()
       )+
       ylab(input$PARAM_SELECT)+
@@ -456,9 +471,10 @@ server <- function(input, output, session) {
             #axis.title.y = element_blank(),
             axis.title = element_text(size = 14,
                                       face = "bold"),
-            #axis.line = element_line(linetype = "solid"),
-            #panel.grid.major = element_blank(), 
+            panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
+            panel.background = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),
             #panel.background = element_blank()
       )+
       scale_x_continuous(expand = c(0, 0))+
@@ -526,6 +542,32 @@ server <- function(input, output, session) {
   #############           REGRESSION PAGE SERVER           ################################ 
   ###########################################################################################
   
+  # output$REG_BRUSH_TAB <- renderDT({
+  #   
+  #   req(input$REG_PLOT_BRUSH)
+  #   
+  #   REG_BRUSH_TAB <- brushedPoints(BRUSH_REG_DF(), 
+  #                                  brush = input$REG_BRUSH, 
+  #                                  xvar = .xvar,
+  #                                  yvar = .yvar
+  #   ) %>% 
+  #     select(1:2, 4:5, 7:8, 10:11, 13:14, 16:17, 19:20) %>% 
+  #     datatable(rownames = FALSE,
+  #               style = "bootstrap",
+  #               fillContainer = TRUE,
+  #               selection = 'none',
+  #               options = list(dom = 't',
+  #                              paging = FALSE,
+  #                              scroller = TRUE,
+  #                              scrollY = TRUE,
+  #                              scrollX = TRUE,
+  #                              autoWidth = TRUE)
+  #     )
+  #   
+  #   REG_BRUSH_TAB
+  #   
+  # })
+  # 
   output$REG_PLOT <- renderPlot({
     
     PLOT_REG(.variable = input$PARAM_SELECT_REG, 
@@ -542,17 +584,17 @@ server <- function(input, output, session) {
   REGRESSION_BY = reactive({
     
     if(input$PARAM_SELECT_REG != "All Variables" & input$FACET_BY == "Voter_Alias" & input$ROUND_SELECT_REG == "All Rounds" & input$VOTER_SELECT_REG == "All Voters") {
-      REGRESSION_BY <- " by Voter"
+      REGRESSION_BY <- paste(" by", "<font color=\"#00ba8b\"><b>", " Voter")
     } else if(input$PARAM_SELECT_REG != "All Variables" & input$FACET_BY == "Round" & input$ROUND_SELECT_REG == "All Rounds" & input$VOTER_SELECT_REG == "All Voters") {
-      REGRESSION_BY <- " by Round"
+      REGRESSION_BY <- paste(" by", "<font color=\"#00ba8b\"><b>", " Round")
     } else if(input$ROUND_SELECT_REG != "All Rounds" & input$PARAM_SELECT_REG == "All Variables") {
-      REGRESSION_BY <- paste0(" in the ", input$ROUND_SELECT_REG, " round")
+      REGRESSION_BY <- paste0(" in the ", "<font color=\"#00ba8b\"><b>", input$ROUND_SELECT_REG, "</b></font>", " round")
     }else if(input$VOTER_SELECT_REG != "All Voters" & input$PARAM_SELECT_REG == "All Variables") {
-      REGRESSION_BY <- paste0(" for ", input$VOTER_SELECT_REG, "'s picks")
+      REGRESSION_BY <- paste0(": how ", "<font color=\"#00ba8b\"><b>", input$VOTER_SELECT_REG, "</b></font>", " voted")
     } else if(input$ROUND_SELECT_REG != "All Rounds" & input$PARAM_SELECT_REG != "All Variables") {
-      REGRESSION_BY <- paste0(" in the ", input$ROUND_SELECT_REG, " round by voter")
+      REGRESSION_BY <- paste0(" in the ", "<font color=\"#00ba8b\"><b>",  input$ROUND_SELECT_REG, "</b></font>", " round by", "<font color=\"#00ba8b\"><b>",  " voter")
     }else if(input$VOTER_SELECT_REG != "All Voters" & input$PARAM_SELECT_REG != "All Variables") {
-      REGRESSION_BY <- paste0(" for ", input$VOTER_SELECT_REG, "'s picks")
+      REGRESSION_BY <- paste0(": how ", "<font color=\"#00ba8b\"><b>", input$VOTER_SELECT_REG, "</b></font>", " voted")
        } else {
       REGRESSION_BY <- ""
     }
@@ -560,7 +602,7 @@ server <- function(input, output, session) {
   
   output$REG_TITLE <- renderText({
     
-    paste0("Regression of ", input$PARAM_SELECT_REG, REGRESSION_BY())
+    paste0("Regression of points on ", "<font color=\"#00ba8b\"><b>", input$PARAM_SELECT_REG, "</b></font>", REGRESSION_BY())
     
   })
   
@@ -706,10 +748,10 @@ server <- function(input, output, session) {
             axis.title = element_text(size = 14,
                                       face = "bold"),
             legend.position = "none",
-            axis.line = element_line(linetype = "solid"),
             panel.grid.major = element_blank(), 
             panel.grid.minor = element_blank(),
-            panel.background = element_blank(),
+            panel.background = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),,
             plot.title = element_text(size = 20, hjust = 1)
       )+
       PLOT_TITLE_CAT_REACTIVE()
@@ -731,30 +773,11 @@ server <- function(input, output, session) {
       as.data.frame() %>% 
       group_by(Round, value) %>% 
       summarise(Freq = sum(Freq)) %>% 
-      ungroup()
+      ungroup() %>% 
+      pivot_wider(names_from = value, values_from = Freq) 
     
   })
   
-  output$CAT_FREQ_TAB_ROUND <- renderDT({
-    
-    CAT_FREQ_TAB_ROUND <- CAT_FREQ_TAB_ROUND_DF() %>% 
-      pivot_wider(names_from = value, values_from = Freq) %>% 
-      datatable(rownames = FALSE,
-                style = "bootstrap",
-                fillContainer = TRUE,
-                selection = 'none',
-                options = list(dom = 't',
-                               paging = FALSE,
-                               scroller = TRUE,
-                               scrollY = TRUE,
-                               scrollX = TRUE,
-                               autoWidth = TRUE)
-      )
-    
-    CAT_FREQ_TAB_ROUND
-    
-    
-  })
   
   CAT_FREQ_TAB_PICKER_DF <- reactive({
     
@@ -769,14 +792,38 @@ server <- function(input, output, session) {
     
   })
   
+observeEvent(CAT_FREQ_TAB_ROUND_DF(), {  
+  output$CAT_FREQ_TAB_ROUND <- renderDT({
+    
+    req(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT, CAT_FREQ_TAB_ROUND_DF()))
+    
+ 
+      datatable(CAT_FREQ_TAB_ROUND_DF(),
+                rownames = FALSE,
+                style = "bootstrap",
+                #fillContainer = TRUE,
+                selection = 'none',
+                options = list(dom = 't',
+                               paging = FALSE,
+                               scroller = TRUE,
+                               scrollY = TRUE,
+                               scrollX = TRUE,
+                               autoWidth = TRUE)
+      )
+    
+  })
+})
   
   output$CAT_FREQ_TAB_PICKER <- renderDT({
+    
+    req(c(input$GROUP_SELECT_CAT, input$PARAM_SELECT_CAT, CAT_FREQ_TAB_ROUND_DF()))
+    
     
     CAT_FREQ_TAB_PICKER <- CAT_FREQ_TAB_PICKER_DF() %>% 
       pivot_wider(names_from = value, values_from = Freq) %>% 
       datatable(rownames = FALSE,
                 style = "bootstrap",
-                fillContainer = TRUE,
+                #fillContainer = TRUE,
                 selection = 'none',
                 options = list(dom = 't',
                                paging = FALSE,
@@ -820,7 +867,11 @@ server <- function(input, output, session) {
         #l = 65,
         #h.start = 0
       )+
-      theme(legend.position = "none")
+      theme(legend.position = "none",
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),)
     
     TREEMAP_PLOT
     
@@ -854,7 +905,10 @@ server <- function(input, output, session) {
         axis.title.y = element_blank(),
         #axis.line = element_line(linetype = "solid"),
         #panel.grid.major = element_blank(), 
+        panel.grid.major = element_blank(), 
         panel.grid.minor = element_blank(),
+        panel.background = element_rect(fill = NA),
+        axis.line = element_line(linetype = "solid"),
         #panel.background = element_blank()
       )+
       coord_flip()
@@ -1076,9 +1130,11 @@ server <- function(input, output, session) {
               size = 13,
               face = "bold"
             ),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),,
             axis.text.y = element_text(size = 13, face = "bold"),
-            panel.background = element_blank(),
-            panel.grid = element_blank(),
             axis.title.y = element_blank(),
             axis.title.x = element_text(size = 16, face = "bold"),
             axis.ticks = element_blank()
@@ -1111,7 +1167,7 @@ server <- function(input, output, session) {
     
     SONGS_CUM_PLOT <- SONGS_CUM_PLOT_PRE %>% 
       ggplot(aes(x = ROUND_NUM, y = if(input$SCORE_Y_OPT == "cumulative scores") VOTES_TOTES else DIST_MEAN, color = Picker))+
-      geom_line(aes(group = Picker), linewidth = 0.8) + 
+      geom_line(aes(group = Picker, color = Picker), linewidth = 0.8) + 
       geom_point(size = 2.5)+
       gghighlight(
         Picker %in% c(input$PICKER_SELECT_2),
@@ -1143,14 +1199,19 @@ server <- function(input, output, session) {
             panel.grid.minor.x = element_blank(),
             axis.text.x = element_text(
               size = 13,
-              face = "bold"
+              face = "bold",
             ),
+            panel.grid.major = element_blank(), 
+            panel.grid.minor = element_blank(),
+            panel.background = element_rect(fill = NA),
+            #panel.border = element_rect(fill = NA),
+            axis.line = element_line(linetype = "solid"),
             axis.text.y=element_text(size = 12),
             axis.title.x = element_text(size = 16, face = "bold"),
             axis.title.y = element_text(size = 16,
                                         face = "bold"),
       ) +
-      COLORS_REACTIVE()
+      PickerColScale
     
     
     
@@ -1188,24 +1249,26 @@ server <- function(input, output, session) {
       pivot_wider(
         names_from = Voter_Alias,
         values_from = TOTAL,
-        values_fill = NA
+        values_fill = 0
       ) |> 
       column_to_rownames("Picker")
   
   VOTES_MATRIX <- data.matrix(VOTES_WIDE)
   #dimnames(VOTES_MATRIX) <- list(To = colnames(VOTES_MATRIX), From = rownames(VOTES_MATRIX))
   
-  VOTES_MATRIX <- VOTES_MATRIX[sort(rownames(VOTES_MATRIX)), sort(colnames(VOTES_MATRIX))]
+  VOTES_MATRIX <- t(VOTES_MATRIX[sort(colnames(VOTES_MATRIX)), sort(rownames(VOTES_MATRIX))])
   
   })
   
   output$VOTES_PLOT <- renderChorddiag({
     
     VOTES_PLOT <- chorddiag(VOTES_MATRIX(),
-                            #tooltipGroupConnector = "\U25C0",
+                            tooltipGroupConnector = "\U2192",
                             #palette = "Set3",
-                            groupColors = VoterColors,
-                            groupnamePadding = 10)
+                            groupColors = PickerColors,
+                            groupnamePadding = 25,
+                            ticklabelFontsize = 8,
+                            tickInterval = 5)
     
     return(VOTES_PLOT)
     

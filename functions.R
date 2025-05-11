@@ -9,7 +9,10 @@ plot <- SONGS_LONG |>
   geom_jitter(aes(text = Title), alpha = 0.6, size = 1.5, height = 0.02, width = 0.02)+
   stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE)) +
   stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
-               aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+               aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
+                   face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                   label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+  scale_color_identity(aesthetics = c("color", "face"))+
   theme(strip.text = element_text(size = 12,face = "bold"), 
         strip.background = element_rect(fill = NA),
         panel.grid.major = element_blank(), 
@@ -32,7 +35,10 @@ plot <- ggpar(plot, legend = "right")
     geom_jitter(alpha = 0.6, size = 1.5, height = 0.2, width = 0.02)+
     stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE)) +
     stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
-                 aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+    
+                 aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
+                     face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                     label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+    scale_color_identity(aesthetics = c("color", "face"))+
     #stat_regline_equation(label.y.npc = 0.8, formula = y~poly(x, .reg)) +
     facet_wrap(vars(Voter_Alias)) +
     theme(panel.grid.major = element_blank(), 
@@ -54,7 +60,10 @@ plot <- ggpar(plot, legend = "right")
     geom_jitter(alpha = 0.6, size = 1.5, height = 0.2, width = 0.02)+
     stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE)) +
     stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
-                 aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+    
+                 aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
+                     face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                     label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+    scale_color_identity(aesthetics = c("color", "face"))+
     #stat_regline_equation(label.y.npc = 0.8, formula = y~poly(x, .reg)) +
     facet_wrap(vars(Round))+
     theme(panel.grid.major = element_blank(), 
@@ -77,7 +86,10 @@ plot <- SONGS_LONG_VOTER |>
   #stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")))+
   stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE))+
   stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
-               aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+    
+               aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
+                   face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                   label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+  scale_color_identity(aesthetics = c("color", "face"))+
   #stat_regline_equation(label.y.npc = 0.8, formula = y~poly(x, .reg, raw = TRUE)) +
   facet_wrap(vars(variable), scales = "free_x") +
   theme(strip.text = element_text(size = 12, face = "bold"), 
@@ -101,7 +113,10 @@ plot <- ggpar(plot, legend = "right")
     #stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")))+
     stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE))+
     stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
-                 aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+    
+                 aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
+                     face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                     label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+    scale_color_identity(aesthetics = c("color", "face"))+
     #stat_regline_equation(label.y.npc = 0.8, formula = y~poly(x, .reg, raw = TRUE)) +
     facet_wrap(vars(variable), scales = "free_x") +
     theme(strip.text = element_text(size = 12, face = "bold"), 
@@ -126,7 +141,10 @@ plot <- ggpar(plot, legend = "right")
     #stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")))+
     stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE))+
     stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
-                 aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+    
+                 aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
+                     face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                     label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+    scale_color_identity(aesthetics = c("color", "face"))+
     #stat_regline_equation(label.y.npc = 0.8, formula = y~poly(x, .reg, raw = TRUE)) +
     facet_wrap(vars(Voter_Alias), scales = "free_x") +
     theme(strip.text = element_text(size = 12, face = "bold"), 
@@ -150,7 +168,10 @@ plot <- ggpar(plot, legend = "right")
     #stat_cor(aes(label = paste(..rr.label.., ..p.label.., sep = "~`,`~")))+
     stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE))+
     stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
-                 aes(label = paste(..rr.label.., ..p.value.label.., sep = "~~~"))) +
+                 aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
+                     face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                     label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
+    scale_color_identity(aesthetics = c("color", "face"))+
     ylim(-1, 5) +
     theme(panel.grid.major = element_blank(), 
     panel.grid.minor = element_blank(),

@@ -741,7 +741,7 @@ server <- function(input, output, session) {
         #l = 65,
         #h.start = 0
       )+
-      xlab(input$GROUP_SELECT)+
+      xlab(input$GROUP_SELECT_CAT)+
       theme(text = element_text(size = 12),
             axis.text.x = element_text(angle = 40, vjust = 1, hjust = 1),
             #axis.title.x = element_blank(),

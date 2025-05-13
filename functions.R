@@ -169,7 +169,7 @@ plot <- ggpar(plot, legend = "right")
     stat_smooth(method = "lm", formula = y~poly(x, .reg, raw = TRUE))+
     stat_poly_eq(formula = y~poly(x, .reg, raw = TRUE), 
                  aes(color = ifelse(after_stat(p.value) <= 0.05, "#00ba8b", "grey"),
-                     face = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
+                     fontface = ifelse(after_stat(p.value) <= 0.05, "bold", "plain"),
                      label = paste(..rr.label.., ..p.value.label.., sep = "~~~")))+
     scale_color_identity(aesthetics = c("color", "face"))+
     ylim(-1, 5) +

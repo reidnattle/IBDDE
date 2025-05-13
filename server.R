@@ -231,8 +231,8 @@ server <- function(input, output, session) {
     
     VOTES_DIST_PLOT <- SONGS_DIST_REACTIVE_VOTES() %>% 
       ggplot(aes(x = `Points Assigned`))+
-      geom_bar(fill = "#8CB5B3", width = 0.7, color = "#39FF14")+
-      geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = DARK_MODE_TEXT_SWITCH(), fontface = "bold", fill = "#8CB5B3")+
+      geom_bar(fill = "#008cba", width = 0.7, color = "#00ba8b")+
+      geom_label(aes(label = after_stat(count)), stat = "count", vjust = -0.5, colour = DARK_MODE_TEXT_SWITCH(), fontface = "bold", fill = "#00ba8b")+
       theme(#axis.line = element_line(linetype = "solid"),
         axis.title = element_text(face = "bold"),
         panel.grid.major = element_blank(), 
@@ -361,9 +361,9 @@ server <- function(input, output, session) {
     
     if(input$HISTO_DENSE_OPT == "Density"){
       
-      HISTO_DENSE <- geom_area(stat = "density", fill = "#8CB5B3", color = "#39FF14", alpha = 0.6)
+      HISTO_DENSE <- geom_area(stat = "density", fill = "#008cba", color = "#00ba8b", alpha = 0.6)
     } else {
-      HISTO_DENSE <- geom_histogram(bins = input$HISTO_SLIDE, fill = "#8CB5B3", color = "#39FF14")
+      HISTO_DENSE <- geom_histogram(bins = input$HISTO_SLIDE, fill = "#008cba", color = "#00ba8b")
     }
     
     
@@ -999,7 +999,7 @@ observeEvent(CAT_FREQ_TAB_ROUND_DF(), {
         SONGS,
         brush = input$SANDINGS_PLOT_BRUSH, 
         xvar = "ROUND_NUM",
-        yvar = if(input$SCORE_Y_OPT == "cumulative scores") VOTES_TOTES else "DIST_MEAN",
+        yvar = if(input$SCORE_Y_OPT == "cumulative scores") "VOTES_TOTES" else "DIST_MEAN",
         allRows = TRUE
       ) %>% 
         filter(Picker %in% c(input$PICKER_SELECT_2)) 

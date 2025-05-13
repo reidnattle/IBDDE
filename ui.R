@@ -90,7 +90,7 @@ ui <- page_navbar(
             ),
             fill = FALSE,
             height = "90px",
-            theme = "cyan" # ,
+            theme = value_box_theme(bg = "#008cba", fg = "#d1e399")
             # class = "text-dark"
           ),
           value_box(
@@ -102,7 +102,7 @@ ui <- page_navbar(
             ),
             fill = FALSE,
             height = "90px",
-            theme = "cyan",
+            theme = value_box_theme(bg = "#008cba", fg = "#d1e399")
           ),
           value_box(
             title = "explicit songs",
@@ -112,7 +112,7 @@ ui <- page_navbar(
             ),
             fill = FALSE,
             height = "90px",
-            theme = "cyan",
+            theme = value_box_theme(bg = "#008cba", fg = "#d1e399")
           )
         ),
         layout_column_wrap(
@@ -255,7 +255,7 @@ ui <- page_navbar(
               ),
               fill = FALSE,
               height = "90px",
-              theme = "cyan",
+              theme = value_box_theme(bg = "#008cba", fg = "#d1e399"),
             ),
             value_box(
               title = textOutput("MAX_TITLE"),
@@ -266,7 +266,7 @@ ui <- page_navbar(
               ),
               fill = FALSE,
               height = "90px",
-              theme = "cyan"
+              theme = value_box_theme(bg = "#008cba", fg = "#d1e399")
             ),
             value_box(
               title = textOutput("MEDIAN_TITLE"),
@@ -277,7 +277,7 @@ ui <- page_navbar(
               ),
               fill = FALSE,
               height = "90px",
-              theme = "cyan",
+              theme = value_box_theme(bg = "#008cba", fg = "#d1e399"),
               showcase_layout = showcase_left_center(
                 width = 0.25,
               )
@@ -440,7 +440,7 @@ ui <- page_navbar(
               ),
               fill = FALSE,
               height = "90px",
-              theme = "cyan",
+              theme = value_box_theme(bg = "#008cba", fg = "#d1e399"),
             ),
             value_box(
               title = textOutput("RARE_TITLE"),
@@ -451,7 +451,7 @@ ui <- page_navbar(
               ),
               fill = FALSE,
               height = "90px",
-              theme = "cyan"
+              theme = value_box_theme(bg = "#008cba", fg = "#d1e399")
             )
           ),
           layout_column_wrap(
